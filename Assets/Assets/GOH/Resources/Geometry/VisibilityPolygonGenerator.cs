@@ -13,7 +13,7 @@ namespace GOH
         [SerializeField] private List<Node> m_terrain_nodes;
         [SerializeField] private readonly Vector2[] triangle_corners = new Vector2[3];
 
-        public VisibilityPolygonGenerator(List<Node> terrain_nodes, GOH_Settings settings)
+        public VisibilityPolygonGenerator(List<Node> terrain_nodes, Settings settings)
         {
             m_terrain_nodes = terrain_nodes;
             m_depth_of_field = settings.MaxViewDistance;
