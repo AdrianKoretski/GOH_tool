@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 953bc4cda32b3a44a9d447f17544ba32
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - vertex_0: {instanceID: 0}
+  - vertex_1: {instanceID: 0}
+  - edge_template: {fileID: 5550739456186777658, guid: ebafbf340b082bd49afa7f6a2a95675b,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

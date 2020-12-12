@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: b4ce41d115f55eb4393253d6d13284b7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - visibility_polygon_template: {fileID: 1706506291030781016, guid: 7fc4165f5ca604148a5307295ce4ad93,
+      type: 3}
+  - visibility_manifold_template: {fileID: -1144380171212539538, guid: d351d44fa52bcd842a665a0a2d0535a6,
+      type: 3}
+  - vertex_template: {fileID: -1619692045849198686, guid: cd07414ca45007d48897c56b2b06b456,
+      type: 3}
+  - edge: {fileID: 5550739456186777658, guid: ebafbf340b082bd49afa7f6a2a95675b, type: 3}
+  - visibility_manifold: {fileID: -1144380171212539538, guid: d351d44fa52bcd842a665a0a2d0535a6,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
