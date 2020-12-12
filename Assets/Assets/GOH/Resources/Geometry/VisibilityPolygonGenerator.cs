@@ -24,12 +24,12 @@ namespace GOH
 
         //------------------------------2.0 start
 
-        public VisibilityPolygon generateVisibilityPolygon(Pip pip)
+        public VisibilityPolygon GenerateVisibilityPolygon(Pip pip)
         {
-            updateView(pip);
+            UpdateView(pip);
 
-            List<Node> node_list = gatherObstacleVertices(pip.timestamp);
-            List<Edge> edge_list = connectObstacleVertices(node_list);
+            List<Node> node_list = GatherObstacleVertices(pip.timestamp);
+            List<Edge> edge_list = ConnectObstacleVertices(node_list);
 
             VisibilityPolygon new_vis_polygon = new VisibilityPolygon(triangle_corners, pip, node_list, edge_list);
 
@@ -39,10 +39,10 @@ namespace GOH
                 Pip delta_pip = pip;
                 delta_pip.position.x += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
                 delta_pip.position.y += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
-                updateView(delta_pip);
+                UpdateView(delta_pip);
 
-                node_list = gatherObstacleVertices(delta_pip.timestamp);
-                edge_list = connectObstacleVertices(node_list);
+                node_list = GatherObstacleVertices(delta_pip.timestamp);
+                edge_list = ConnectObstacleVertices(node_list);
 
                 new_vis_polygon = new VisibilityPolygon(triangle_corners, delta_pip, node_list, edge_list);
                 safety++;
@@ -57,7 +57,7 @@ namespace GOH
         //------------------------------2.0 end
         //------------------------------2.1 start
 
-        void updateView(Pip path_position)
+        void UpdateView(Pip path_position)
         {
             Vector2 position = path_position.position;
             float orientation = path_position.orientation;
@@ -70,16 +70,16 @@ namespace GOH
         //------------------------------2.1 end
         //------------------------------2.2-nodes start
 
-        private List<Node> gatherObstacleVertices(float timestamp)
+        private List<Node> GatherObstacleVertices(float timestamp)
         {
             List<Node> vertex_list = new List<Node>();
             for (int i = 0; i < m_terrain_nodes.Count; i++)
-                if (Helpers.IsContained(triangle_corners[0], triangle_corners[1], triangle_corners[2], m_terrain_nodes[i].position) || hasEdgeCrossingTriangle(m_terrain_nodes[i]))
+                if (Helpers.IsContained(triangle_corners[0], triangle_corners[1], triangle_corners[2], m_terrain_nodes[i].position) || HasEdgeCrossingTriangle(m_terrain_nodes[i]))
                     vertex_list.Add(m_terrain_nodes[i].CopyPinnedObstacleNode(timestamp));
             return vertex_list;
         }
 
-        private bool hasEdgeCrossingTriangle(Node vertex)
+        private bool HasEdgeCrossingTriangle(Node vertex)
         {
             for (int i = 0; i < vertex.GetNeighborCount(); i++)
                 for (int j = 0; j < 3; j++)
@@ -91,7 +91,7 @@ namespace GOH
         //------------------------------2.2-nodes end
         //------------------------------2.2-edges start
 
-        private List<Edge> connectObstacleVertices(List<Node> vertex_list)
+        private List<Edge> ConnectObstacleVertices(List<Node> vertex_list)
         {
             List<Edge> edge_list = new List<Edge>();
             for (int i = 0; i < vertex_list.Count; i++)
@@ -101,7 +101,7 @@ namespace GOH
                 for (int j = 0; j < p_node.GetNeighborCount(); j++)
                 {
                     Node p_node_neighbor = p_node.GetNeighborNode(j);
-                    Node neighbor = findNodeCopy(p_node_neighbor, vertex_list);
+                    Node neighbor = FindNodeCopy(p_node_neighbor, vertex_list);
                     if (neighbor != null && !o_node.IsNeighbor(neighbor))
                         edge_list.Add(new Edge(o_node, neighbor));
                 }
@@ -109,7 +109,7 @@ namespace GOH
             return edge_list;
         }
 
-        private Node findNodeCopy(Node v, List<Node> vertex_list)
+        private Node FindNodeCopy(Node v, List<Node> vertex_list)
         {
             for (int i = 0; i < vertex_list.Count; i++)
                 if (Node.Compare(vertex_list[i], v))
@@ -120,18 +120,18 @@ namespace GOH
         //------------------------------2.2-edges end
         //------------------------------3.2 start
 
-        public List<VisibilityPolygon> generteIntermediatePolygons(VisibilityPolygon poly_0, VisibilityPolygon poly_1)
+        public List<VisibilityPolygon> GenerteIntermediatePolygons(VisibilityPolygon poly_0, VisibilityPolygon poly_1)
         {
             List<VisibilityPolygon> polys = new List<VisibilityPolygon>();
             if (poly_1.getTimestamp() - poly_0.getTimestamp() <= m_threshold)
                 return polys;
-            polys.AddRange(generateVisibilityPair(poly_0, poly_1));
+            polys.AddRange(GenerateVisibilityPair(poly_0, poly_1));
             while (!polys[polys.Count - 1].compare(poly_1) && poly_1.getTimestamp() - polys[polys.Count - 1].getTimestamp() > m_threshold)
-                polys.AddRange(generateVisibilityPair(polys[polys.Count - 1], poly_1));
+                polys.AddRange(GenerateVisibilityPair(polys[polys.Count - 1], poly_1));
             return polys;
         }
 
-        public List<VisibilityPolygon> generateVisibilityPair(VisibilityPolygon poly_0, VisibilityPolygon poly_1)
+        public List<VisibilityPolygon> GenerateVisibilityPair(VisibilityPolygon poly_0, VisibilityPolygon poly_1)
         {
             List<VisibilityPolygon> polys = new List<VisibilityPolygon>();
 
@@ -140,7 +140,7 @@ namespace GOH
 
             while (A.getTimestamp() - B.getTimestamp() > m_threshold)
             {
-                VisibilityPolygon N = generateVisibilityPolygon(Helpers.Average(A.getPathPip(), B.getPathPip()));
+                VisibilityPolygon N = GenerateVisibilityPolygon(Helpers.Average(A.getPathPip(), B.getPathPip()));
                 if (N.compare(B))
                 {
                     /*if (B != poly_0)

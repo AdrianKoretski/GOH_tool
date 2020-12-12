@@ -36,16 +36,16 @@ namespace GOH
         {
             if (m_path_index >= m_path.Count)
                 return;
-            VisibilityPolygon vis = vis_poly_gen.generateVisibilityPolygon(m_path[m_path_index]);
-            addPolygon(vis);
+            VisibilityPolygon vis = vis_poly_gen.GenerateVisibilityPolygon(m_path[m_path_index]);
+            AddPolygon(vis);
         }
 
-        private void addPolygon(VisibilityPolygon vis)
+        private void AddPolygon(VisibilityPolygon vis)
         {
             if (m_path_index != 0 && !vis.compare(vis_polys[vis_polys.Count - 1]))
             {
-                List<VisibilityPolygon> polys = vis_poly_gen.generteIntermediatePolygons(vis_polys[vis_polys.Count - 1], vis);
-                insertIntermediatePolygons(polys);
+                List<VisibilityPolygon> polys = vis_poly_gen.GenerteIntermediatePolygons(vis_polys[vis_polys.Count - 1], vis);
+                InsertIntermediatePolygons(polys);
             }
             vis_polys.Add(vis);
             PolygonVisualiser.instance.CreatePolygon(vis.getTimestamp());
@@ -57,7 +57,7 @@ namespace GOH
                 visibility_manifold.cap();
         }
 
-        private void insertIntermediatePolygons(List<VisibilityPolygon> polys)
+        private void InsertIntermediatePolygons(List<VisibilityPolygon> polys)
         {
             for (int i = 0; i < polys.Count; i++)
             {
