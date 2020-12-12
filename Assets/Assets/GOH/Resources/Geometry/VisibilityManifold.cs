@@ -310,7 +310,7 @@ namespace GOH
             Node n0 = second_last().at(node_index_0);
             Node n1 = last().at(node_index_1);
             new Edge(n0, n1);
-            GameObject go = GOH_Visualiser.CreateLine(null, getManifoldPosition(layer_count() - 2, node_index_0), getManifoldPosition(layer_count() - 1, node_index_1), Color.black, Color.black, "Line " + " ");
+            GameObject go = Visualiser.CreateLine(null, getManifoldPosition(layer_count() - 2, node_index_0), getManifoldPosition(layer_count() - 1, node_index_1), Color.black, Color.black, "Line " + " ");
             SimplifiedGraphVisualiser.instance.AddGeom(go, timeStamp);
         }
 
@@ -351,9 +351,9 @@ namespace GOH
         private void addLayerVisuals(List<Node> new_vp_graph, Transform parent)
         {
             for (int i = 0; i < new_vp_graph.Count; i++)
-                GOH_Visualiser.CreatePoint(parent, getManifoldPosition(layer_count() - 1, i), Color.black, " ");
+                Visualiser.CreatePoint(parent, getManifoldPosition(layer_count() - 1, i), Color.black, " ");
             for (int i = 0; i < new_vp_graph.Count - 1; i++)
-                GOH_Visualiser.CreateLine(parent, getManifoldPosition(layer_count() - 1, i), getManifoldPosition(layer_count() - 1, i + 1), Color.black, Color.black, "Line " + " ");
+                Visualiser.CreateLine(parent, getManifoldPosition(layer_count() - 1, i), getManifoldPosition(layer_count() - 1, i + 1), Color.black, Color.black, "Line " + " ");
         }
 
         private void displayTriangle(Node vx0, Node vx1, Node vx2)
