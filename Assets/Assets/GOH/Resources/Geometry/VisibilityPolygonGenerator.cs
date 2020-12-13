@@ -27,8 +27,8 @@ namespace GOH
         {
             Vector2[] visibility_triangle = GenerateVisibilityTriangle(pip);
 
-            List<Node> node_list = GatherObstacleVertices(visibility_triangle, pip.timestamp);
-            List<Edge> edge_list = ConnectObstacleVertices(node_list);
+            List<Node> node_list = GenerateObstacleVertices(visibility_triangle, pip.timestamp);
+            List<Edge> edge_list = GenerateObstacleEdges(node_list);
 
             VisibilityPolygon new_vis_polygon = new VisibilityPolygon(visibility_triangle, pip, node_list, edge_list);
 
@@ -40,8 +40,8 @@ namespace GOH
                 delta_pip.position.y += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
                 visibility_triangle = GenerateVisibilityTriangle(delta_pip);
 
-                node_list = GatherObstacleVertices(visibility_triangle, delta_pip.timestamp);
-                edge_list = ConnectObstacleVertices(node_list);
+                node_list = GenerateObstacleVertices(visibility_triangle, delta_pip.timestamp);
+                edge_list = GenerateObstacleEdges(node_list);
 
                 new_vis_polygon = new VisibilityPolygon(visibility_triangle, delta_pip, node_list, edge_list);
                 safety++;
@@ -70,20 +70,20 @@ namespace GOH
         //------------------------------2.1 end
         //------------------------------2.2-nodes start
 
-        private List<Node> GatherObstacleVertices(Vector2[] visibility_triangle, float timestamp)
+        private List<Node> GenerateObstacleVertices(Vector2[] visibility_triangle, float timestamp)
         {
-            List<Node> vertex_list = new List<Node>();
+            List<Node> obstacle_nodes = new List<Node>();
             foreach (Node node in m_terrain_nodes)
                 if (Helpers.IsContained(visibility_triangle, node.position) || HasEdgeCrossingTriangle(visibility_triangle, node))
-                    vertex_list.Add(node.CopyToPinned(timestamp));
-            return vertex_list;
+                    obstacle_nodes.Add(node.CopyToPinned(timestamp));
+            return obstacle_nodes;
         }
 
-        private bool HasEdgeCrossingTriangle(Vector2[] visibility_triangle, Node vertex)
+        private bool HasEdgeCrossingTriangle(Vector2[] visibility_triangle, Node node)
         {
-            for (int i = 0; i < vertex.GetNeighborCount(); i++)
+            for (int i = 0; i < node.GetNeighborCount(); i++)
                 for (int j = 0; j < 3; j++)
-                    if (vertex.DoesNeighborIntersect(i, visibility_triangle[j], visibility_triangle[(j + 1) % 3]))
+                    if (node.DoesNeighborIntersect(i, visibility_triangle[j], visibility_triangle[(j + 1) % 3]))
                         return true;
             return false;
         }
@@ -91,29 +91,28 @@ namespace GOH
         //------------------------------2.2-nodes end
         //------------------------------2.2-edges start
 
-        private List<Edge> ConnectObstacleVertices(List<Node> vertex_list)
+        private List<Edge> GenerateObstacleEdges(List<Node> node_list)
         {
             List<Edge> edge_list = new List<Edge>();
-            for (int i = 0; i < vertex_list.Count; i++)
+            foreach (Node node in node_list)
             {
-                Node o_node = vertex_list[i];
-                Node p_node = m_terrain_nodes[o_node.ID_0];
+                Node p_node = m_terrain_nodes[node.ID_0];
                 for (int j = 0; j < p_node.GetNeighborCount(); j++)
                 {
                     Node p_node_neighbor = p_node.GetNeighborNode(j);
-                    Node neighbor = FindNodeCopy(p_node_neighbor, vertex_list);
-                    if (neighbor != null && !o_node.IsNeighbor(neighbor))
-                        edge_list.Add(new Edge(o_node, neighbor));
+                    Node neighbor = FindNodeCopy(p_node_neighbor, node_list);
+                    if (neighbor != null && !node.IsNeighbor(neighbor))
+                        edge_list.Add(new Edge(node, neighbor));
                 }
             }
             return edge_list;
         }
 
-        private Node FindNodeCopy(Node v, List<Node> vertex_list)
+        private Node FindNodeCopy(Node node_copy, List<Node> node_list)
         {
-            for (int i = 0; i < vertex_list.Count; i++)
-                if (Node.Compare(vertex_list[i], v))
-                    return vertex_list[i];
+            foreach (Node node in node_list)
+                if (Node.Compare(node, node_copy))
+                    return node;
             return null;
         }
 
