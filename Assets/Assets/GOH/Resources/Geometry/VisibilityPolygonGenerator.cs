@@ -143,11 +143,10 @@ namespace GOH
 
             while (A.getTimestamp() - B.getTimestamp() > m_threshold)
             {
-                VisibilityPolygon N = GetVisibilityPolygon(Helpers.Average(A.getPathPip(), B.getPathPip()));
-                if (N.compare(B))
-                    B = N;
-                else
-                    A = N;
+                Pip average = Helpers.Average(A.getPathPip(), B.getPathPip());
+                VisibilityPolygon N = GetVisibilityPolygon(average);
+
+                _ = N.compare(B) ? B = N : A = N;
             }
             if (B != poly_0)
                 polys.Add(B);
