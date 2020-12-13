@@ -57,8 +57,6 @@ namespace GOH
             return GenerateVisibilityPolygon(delta_pip);
         }
 
-
-
         //------------------------------2.0 end
         //------------------------------2.1 start
 
@@ -89,7 +87,7 @@ namespace GOH
         {
             for (int i = 0; i < node.GetNeighborCount(); i++)
                 for (int j = 0; j < 3; j++)
-                    if (node.DoesNeighborIntersect(i, visibility_triangle[j], visibility_triangle[(j + 1) % 3]))
+                    if (Helpers.HasIntersect(node.position, node.GetNeighborNode(i).position, visibility_triangle[j], visibility_triangle[(j + 1) % 3]))
                         return true;
             return false;
         }

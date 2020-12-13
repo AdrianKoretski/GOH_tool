@@ -104,11 +104,6 @@ namespace GOH
             return null;
         }
 
-        public bool DoesNeighborIntersect(int index, Vector2 p_0, Vector2 p_1)
-        {
-            return Helpers.HasIntersect(neightbour_edges[index], p_0, p_1);
-        }
-
         public Node CopyToPinned(float timestamp)
         {
             if (type != NodeType.pinned)
