@@ -32,7 +32,7 @@ namespace GOH
             while (!vis_polygon.is_valid && safety_count < m_max_reattempts)
                 vis_polygon = GenerateVisibilityPolygonWiggle(pip);
             if (!vis_polygon.is_valid)
-                MonoBehaviour.print("oh no");
+                MonoBehaviour.print("oh no");                               // TODO: Add proper error handling. 
             return vis_polygon;
         }
 
@@ -50,8 +50,7 @@ namespace GOH
         private VisibilityPolygon GenerateVisibilityPolygonWiggle(Pip pip)
         {
             Pip delta_pip = new Pip(pip);
-            delta_pip.position.x += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
-            delta_pip.position.y += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
+            delta_pip.Wiggle(m_wiggle_delta);
             return GenerateVisibilityPolygon(delta_pip);
         }
 
