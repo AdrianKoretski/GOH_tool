@@ -51,6 +51,11 @@ namespace GOH
             return true;
         }
 
+        public static bool IsContained(Vector2[] vectors, Vector2 vector_p)
+        {
+            return IsContained(vectors[0], vectors[1], vectors[2], vector_p);
+        }
+
         public static bool IsContained(Node node_0, Node node_1, Node node_2, Node node_p)
         {
             return IsContained(node_0.position, node_1.position, node_2.position, node_p.position);

@@ -11,7 +11,6 @@ namespace GOH
         [SerializeField] private float m_threshold;
 
         [SerializeField] private List<Node> m_terrain_nodes;
-        [SerializeField] private readonly Vector2[] triangle_corners = new Vector2[3];
 
         public VisibilityPolygonGenerator(List<Node> terrain_nodes, Settings settings)
         {
@@ -26,12 +25,12 @@ namespace GOH
 
         public VisibilityPolygon GenerateVisibilityPolygon(Pip pip)
         {
-            UpdateView(pip);
+            Vector2[] visibility_triangle = GenerateVisibilityTriangle(pip);
 
-            List<Node> node_list = GatherObstacleVertices(pip.timestamp);
+            List<Node> node_list = GatherObstacleVertices(visibility_triangle, pip.timestamp);
             List<Edge> edge_list = ConnectObstacleVertices(node_list);
 
-            VisibilityPolygon new_vis_polygon = new VisibilityPolygon(triangle_corners, pip, node_list, edge_list);
+            VisibilityPolygon new_vis_polygon = new VisibilityPolygon(visibility_triangle, pip, node_list, edge_list);
 
             int safety = 0;
             while (safety < 3 && !new_vis_polygon.is_valid)
@@ -39,12 +38,12 @@ namespace GOH
                 Pip delta_pip = pip;
                 delta_pip.position.x += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
                 delta_pip.position.y += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
-                UpdateView(delta_pip);
+                visibility_triangle = GenerateVisibilityTriangle(delta_pip);
 
-                node_list = GatherObstacleVertices(delta_pip.timestamp);
+                node_list = GatherObstacleVertices(visibility_triangle, delta_pip.timestamp);
                 edge_list = ConnectObstacleVertices(node_list);
 
-                new_vis_polygon = new VisibilityPolygon(triangle_corners, delta_pip, node_list, edge_list);
+                new_vis_polygon = new VisibilityPolygon(visibility_triangle, delta_pip, node_list, edge_list);
                 safety++;
             }
             if (safety == 3)
@@ -57,33 +56,34 @@ namespace GOH
         //------------------------------2.0 end
         //------------------------------2.1 start
 
-        void UpdateView(Pip path_position)
+        Vector2[] GenerateVisibilityTriangle(Pip path_position)
         {
-            Vector2 position = path_position.position;
+            Vector2[] visibility_triangle = new Vector2[3];
+            visibility_triangle[0] = path_position.position;
             float orientation = path_position.orientation;
             float angle_from_center = m_depth_of_field / Mathf.Cos(m_field_of_view);
-            triangle_corners[0] = position;
-            triangle_corners[1] = position + new Vector2(Mathf.Cos(orientation + m_field_of_view) * angle_from_center, Mathf.Sin(orientation + m_field_of_view) * angle_from_center);
-            triangle_corners[2] = position + new Vector2(Mathf.Cos(orientation - m_field_of_view) * angle_from_center, Mathf.Sin(orientation - m_field_of_view) * angle_from_center);
+            visibility_triangle[1] = visibility_triangle[0] + new Vector2(Mathf.Cos(orientation + m_field_of_view) * angle_from_center, Mathf.Sin(orientation + m_field_of_view) * angle_from_center);
+            visibility_triangle[2] = visibility_triangle[0] + new Vector2(Mathf.Cos(orientation - m_field_of_view) * angle_from_center, Mathf.Sin(orientation - m_field_of_view) * angle_from_center);
+            return visibility_triangle;
         }
 
         //------------------------------2.1 end
         //------------------------------2.2-nodes start
 
-        private List<Node> GatherObstacleVertices(float timestamp)
+        private List<Node> GatherObstacleVertices(Vector2[] visibility_triangle, float timestamp)
         {
             List<Node> vertex_list = new List<Node>();
-            for (int i = 0; i < m_terrain_nodes.Count; i++)
-                if (Helpers.IsContained(triangle_corners[0], triangle_corners[1], triangle_corners[2], m_terrain_nodes[i].position) || HasEdgeCrossingTriangle(m_terrain_nodes[i]))
-                    vertex_list.Add(m_terrain_nodes[i].CopyPinnedObstacleNode(timestamp));
+            foreach (Node node in m_terrain_nodes)
+                if (Helpers.IsContained(visibility_triangle, node.position) || HasEdgeCrossingTriangle(visibility_triangle, node))
+                    vertex_list.Add(node.CopyToPinned(timestamp));
             return vertex_list;
         }
 
-        private bool HasEdgeCrossingTriangle(Node vertex)
+        private bool HasEdgeCrossingTriangle(Vector2[] visibility_triangle, Node vertex)
         {
             for (int i = 0; i < vertex.GetNeighborCount(); i++)
                 for (int j = 0; j < 3; j++)
-                    if (vertex.DoesNeighborIntersect(i, triangle_corners[j], triangle_corners[(j + 1) % 3]))
+                    if (vertex.DoesNeighborIntersect(i, visibility_triangle[j], visibility_triangle[(j + 1) % 3]))
                         return true;
             return false;
         }
@@ -142,17 +142,9 @@ namespace GOH
             {
                 VisibilityPolygon N = GenerateVisibilityPolygon(Helpers.Average(A.getPathPip(), B.getPathPip()));
                 if (N.compare(B))
-                {
-                    /*if (B != poly_0)
-                        UnityEngine.Object.Destroy(B.gameObject);*/
                     B = N;
-                }
                 else
-                {
-                    /*if (A != poly_1)
-                        UnityEngine.Object.Destroy(A.gameObject);*/
                     A = N;
-                }
             }
             if (B != poly_0)
                 polys.Add(B);
@@ -160,7 +152,6 @@ namespace GOH
                 polys.Add(A);
             return polys;
         }
-
         //------------------------------3.2 end
     }
 }

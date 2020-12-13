@@ -220,7 +220,7 @@ namespace GOH
         //------------------------------2.7 start
         private void generateVisibilityArea()
         {
-            Edge previous_edge = guard_node.GetNeighborEdge(0);
+            Edge previous_edge = guard_node.neightbour_edges[0];
             Node current = guard_node.GetNeighborNode(0);
             Node next;
             vis_graph.Add(guard_node);
@@ -231,7 +231,7 @@ namespace GOH
                 float min = float.PositiveInfinity;
                 for (int i = 0; i < current.GetNeighborCount(); i++)
                 {
-                    if (current.GetNeighborEdge(i) == previous_edge)
+                    if (current.neightbour_edges[i] == previous_edge)
                         continue;
                     if (min > Helpers.Angle(previous_edge.GetOtherNode(current), current, current.GetNeighborNode(i)))
                     {
@@ -263,7 +263,7 @@ namespace GOH
                     continue;
                 for (int j = m_p_nodes[i].GetNeighborCount() - 1; j >= 0; j--)
                 {
-                    Edge neighbor = m_p_nodes[i].GetNeighborEdge(j);
+                    Edge neighbor = m_p_nodes[i].neightbour_edges[j];
                     m_w_edges.Remove(neighbor);
                     neighbor.Destroy();
                 }
