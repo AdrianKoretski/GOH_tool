@@ -30,7 +30,10 @@ namespace GOH
             VisibilityPolygon vis_polygon = GenerateVisibilityPolygon(pip);
             int safety_count = 0;
             while (!vis_polygon.is_valid && safety_count < m_max_reattempts)
+            {
                 vis_polygon = GenerateVisibilityPolygonWiggle(pip);
+                safety_count++;
+            }
             if (!vis_polygon.is_valid)
                 MonoBehaviour.print("oh no");                               // TODO: Add proper error handling. 
             return vis_polygon;
