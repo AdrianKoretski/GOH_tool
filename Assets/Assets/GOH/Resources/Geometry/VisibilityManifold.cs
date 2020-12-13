@@ -40,18 +40,18 @@ namespace GOH
 
         public void addArea(VisibilityPolygon vp)
         {
-            List<Node> vp_graph = vp.getVisibilityArea();
+            List<Node> vp_graph = vp.GetVisibilityArea();
 
             m_vis_polys.Add(vp);
             setManifoldIDs(vp_graph);
 
             saveNodeObj(vp_graph);
-            GameObject new_layer = SimplifiedGraphVisualiser.instance.AddLayer(vp.getTimestamp());
+            GameObject new_layer = SimplifiedGraphVisualiser.instance.AddLayer(vp.GetTimestamp());
             addLayerVisuals(vp_graph, new_layer.transform);
 
             if (layer_count() != 1)
-                if (vp.compare(second_last()))
-                    connectSame(vp.getTimestamp());
+                if (vp.Compare(second_last()))
+                    connectSame(vp.GetTimestamp());
                 else
                     connectDifferent();
             else
@@ -75,19 +75,19 @@ namespace GOH
 
         private void connectSame(float timeStamp)
         {
-            for (int i = 0; i < second_last().count() - 1; i++)
+            for (int i = 0; i < second_last().Count() - 1; i++)
             {
                 connectNodeTime(i, i, timeStamp);
                 connectNodeTime(i + 1, i, timeStamp);
                 addTriangle(
-                    second_last().at(i),
-                    second_last().at(i + 1),
-                    last().at(i)
+                    second_last().At(i),
+                    second_last().At(i + 1),
+                    last().At(i)
                     );
                 addTriangle(
-                    last().at(i),
-                    second_last().at(i + 1),
-                    last().at(i + 1)
+                    last().At(i),
+                    second_last().At(i + 1),
+                    last().At(i + 1)
                     );
             }
             connectDangler(timeStamp);
@@ -95,20 +95,20 @@ namespace GOH
 
         private void connectDangler(float timeStamp)
         {
-            Node n0 = second_last().first();
-            Node n1 = last().last();
-            connectNodeTime(second_last().count() - 1, last().count() - 1, timeStamp);
+            Node n0 = second_last().First();
+            Node n1 = last().Last();
+            connectNodeTime(second_last().Count() - 1, last().Count() - 1, timeStamp);
             new Edge(n0, n1);
             addTriangle
                 (
-                second_last().last(),
-                second_last().first(),
-                last().last()
+                second_last().Last(),
+                second_last().First(),
+                last().Last()
                 );
             addTriangle(
-                last().last(),
-                second_last().first(),
-                last().first()
+                last().Last(),
+                second_last().First(),
+                last().First()
                 );
         }
 
@@ -121,8 +121,8 @@ namespace GOH
 
             connectSimilarNodes(layer_0, layer_1);
 
-            List<Node> single_nodes_0 = getUnconnectedNodes(layer_0, layer_1.getTimestamp());
-            List<Node> single_nodes_1 = getUnconnectedNodes(layer_1, layer_0.getTimestamp());
+            List<Node> single_nodes_0 = getUnconnectedNodes(layer_0, layer_1.GetTimestamp());
+            List<Node> single_nodes_1 = getUnconnectedNodes(layer_1, layer_0.GetTimestamp());
 
             List<ClosePair> closest_0 = generateClosestNodePairs(single_nodes_0, layer_0, layer_1);
             List<ClosePair> closest_1 = generateClosestNodePairs(single_nodes_1, layer_1, layer_0);
@@ -154,12 +154,12 @@ namespace GOH
                 }
                 int index_of_0 = layer_0.IndexOf(closest.bottom);
                 int index_of_1 = layer_1.IndexOf(closest.top);
-                connectNodeTime(index_of_0, index_of_1, layer_1.getTimestamp());
+                connectNodeTime(index_of_0, index_of_1, layer_1.GetTimestamp());
                 closest_0.Remove(closest);
                 closest_1.Remove(closest);
             }
             triangulate(layer_0, layer_1);
-            connectDangler(layer_1.getTimestamp());
+            connectDangler(layer_1.GetTimestamp());
         }
 
         List<ClosePair> generateClosestNodePairs(List<Node> single_nodes, VisibilityPolygon single_layer, VisibilityPolygon other_layer)
@@ -177,21 +177,21 @@ namespace GOH
 
         private void connectSimilarNodes(VisibilityPolygon layer_0, VisibilityPolygon layer_1)
         {
-            for (int i = 0; i < layer_0.count(); i++)
-                for (int j = 0; j < layer_1.count(); j++)
-                    if (Node.Compare(layer_1.at(j), layer_0.at(i)))
-                        connectNodeTime(i, j, layer_0.getTimestamp());
+            for (int i = 0; i < layer_0.Count(); i++)
+                for (int j = 0; j < layer_1.Count(); j++)
+                    if (Node.Compare(layer_1.At(j), layer_0.At(i)))
+                        connectNodeTime(i, j, layer_0.GetTimestamp());
         }
 
         private Node getClosest(Node node_1, VisibilityPolygon layer_0, VisibilityPolygon layer_1)
         {
             float distance = float.PositiveInfinity;
             Node closest_index = null;
-            for (int i = 0; i < layer_0.count(); i++)
-                if (Helpers.Distance(layer_0.at(i), node_1) < distance && !doesConnectionCross(layer_0.at(i), node_1, layer_0, layer_1))
+            for (int i = 0; i < layer_0.Count(); i++)
+                if (Helpers.Distance(layer_0.At(i), node_1) < distance && !doesConnectionCross(layer_0.At(i), node_1, layer_0, layer_1))
                 {
-                    distance = Helpers.Distance(layer_0.at(i), node_1);
-                    closest_index = layer_0.at(i);
+                    distance = Helpers.Distance(layer_0.At(i), node_1);
+                    closest_index = layer_0.At(i);
                 }
             return closest_index;
         }
@@ -200,14 +200,14 @@ namespace GOH
         {
             int index_0 = layer_0.IndexOf(node_0);
             int index_1 = layer_1.IndexOf(node_1);
-            for (int i = index_0 + 1; i < layer_0.count(); i++)
+            for (int i = index_0 + 1; i < layer_0.Count(); i++)
                 for (int j = 0; j < index_1; j++)
-                    if (layer_0.at(i).IsNeighbor(layer_1.at(j)))
+                    if (layer_0.At(i).IsNeighbor(layer_1.At(j)))
                         return true;
 
-            for (int i = index_1 + 1; i < layer_1.count(); i++)
+            for (int i = index_1 + 1; i < layer_1.Count(); i++)
                 for (int j = 0; j < index_0; j++)
-                    if (layer_1.at(i).IsNeighbor(layer_0.at(j)))
+                    if (layer_1.At(i).IsNeighbor(layer_0.At(j)))
                         return true;
             return false;
         }
@@ -217,53 +217,53 @@ namespace GOH
             int src_index = 0;
             int dst_index = 0;
 
-            while (src_index != source.count() - 1 || dst_index != dest.count() - 1)
+            while (src_index != source.Count() - 1 || dst_index != dest.Count() - 1)
             {
-                if (src_index != source.count() - 1 && dest.at(dst_index).IsNeighbor(source.at(src_index + 1)))
+                if (src_index != source.Count() - 1 && dest.At(dst_index).IsNeighbor(source.At(src_index + 1)))
                 {
                     addTriangle
                         (
-                            dest.at(dst_index),
-                            source.at(src_index),
-                            source.at(src_index + 1)
+                            dest.At(dst_index),
+                            source.At(src_index),
+                            source.At(src_index + 1)
                         );
                     src_index++;
                     continue;
                 }
-                if (dst_index != dest.count() - 1 && source.at(src_index).IsNeighbor(dest.at(dst_index + 1)))
+                if (dst_index != dest.Count() - 1 && source.At(src_index).IsNeighbor(dest.At(dst_index + 1)))
                 {
                     addTriangle
                     (
-                        dest.at(dst_index),
-                        source.at(src_index),
-                        dest.at(dst_index + 1)
+                        dest.At(dst_index),
+                        source.At(src_index),
+                        dest.At(dst_index + 1)
                     );
                     dst_index++;
                     continue;
                 }
                 else
                 {
-                    if (src_index == source.count() - 1 && dst_index == dest.count() - 2)
+                    if (src_index == source.Count() - 1 && dst_index == dest.Count() - 2)
                     {
-                        addTriangle(source.at(src_index), dest.at(dst_index + 1), dest.at(dst_index));
+                        addTriangle(source.At(src_index), dest.At(dst_index + 1), dest.At(dst_index));
                         break;
                     }
-                    if (src_index == source.count() - 2 && dst_index == dest.count() - 1)
+                    if (src_index == source.Count() - 2 && dst_index == dest.Count() - 1)
                     {
-                        addTriangle(source.at(src_index), source.at(src_index + 1), dest.at(dst_index));
+                        addTriangle(source.At(src_index), source.At(src_index + 1), dest.At(dst_index));
                         break;
                     }
-                    if (src_index != source.count() - 1)
-                        connectNodeTime(src_index + 1, dst_index, dest.getTimestamp());
-                    else if (dst_index != dest.count() - 1)
-                        connectNodeTime(src_index, dst_index + 1, dest.getTimestamp());
+                    if (src_index != source.Count() - 1)
+                        connectNodeTime(src_index + 1, dst_index, dest.GetTimestamp());
+                    else if (dst_index != dest.Count() - 1)
+                        connectNodeTime(src_index, dst_index + 1, dest.GetTimestamp());
                 }
             }
         }
 
         public void cap()
         {
-            List<Node> vp_copy = new List<Node>(last().getVisibilityArea());
+            List<Node> vp_copy = new List<Node>(last().GetVisibilityArea());
             Node origin = vp_copy[0];
             vp_copy.RemoveAt(0);
             for (int i = 0; i < vp_copy.Count - 2; i++)
@@ -289,11 +289,11 @@ namespace GOH
         {
             List<Node> output_vertex_list = new List<Node>();
 
-            for (int i = 0; i < input_vertex_list.count(); i++)
-                if (!input_vertex_list.at(i).HasNeighborFromTime(timestamp))
+            for (int i = 0; i < input_vertex_list.Count(); i++)
+                if (!input_vertex_list.At(i).HasNeighborFromTime(timestamp))
                 {
-                    for (int j = i; j < input_vertex_list.count() && !input_vertex_list.at(j).HasNeighborFromTime(timestamp); j++)
-                        output_vertex_list.Add(input_vertex_list.at(j));
+                    for (int j = i; j < input_vertex_list.Count() && !input_vertex_list.At(j).HasNeighborFromTime(timestamp); j++)
+                        output_vertex_list.Add(input_vertex_list.At(j));
                     break;
                 }
             return output_vertex_list;
@@ -307,8 +307,8 @@ namespace GOH
 
         private void connectNodeTime(int node_index_0, int node_index_1, float timeStamp)
         {
-            Node n0 = second_last().at(node_index_0);
-            Node n1 = last().at(node_index_1);
+            Node n0 = second_last().At(node_index_0);
+            Node n1 = last().At(node_index_1);
             new Edge(n0, n1);
             GameObject go = Visualiser.CreateLine(null, getManifoldPosition(layer_count() - 2, node_index_0), getManifoldPosition(layer_count() - 1, node_index_1), Color.black, Color.black, "Line " + " ");
             SimplifiedGraphVisualiser.instance.AddGeom(go, timeStamp);
@@ -413,7 +413,7 @@ namespace GOH
             Vector3 v = new Vector3();
             v.y = polygon_index;
             v.z = -50;
-            v.x = -node_index + (float)(m_vis_polys[polygon_index].count()) / 2;
+            v.x = -node_index + (float)(m_vis_polys[polygon_index].Count()) / 2;
             return v;
         }
     }

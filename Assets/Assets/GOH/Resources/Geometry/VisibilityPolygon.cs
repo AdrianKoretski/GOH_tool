@@ -27,30 +27,31 @@ namespace GOH
             this.pip = pip;
             m_w_edges = edges;
             m_p_nodes = nodes;
-            generatePolygon();
+
+            GeneratePolygon();
         }
 
         //------------------------------Setup end
 
-        private void generatePolygon()
+        private void GeneratePolygon()
         {
-            List<Node> i_nodes = generateInterceptNodes();      // 2.3
+            List<Node> i_nodes = GenerateInterceptNodes();      // 2.3
             if (!is_valid)
                 return;
-            List<Edge> back = generateTriangleBase(i_nodes);    // 2.4
-            castCornerShadowNodes();                            // 2.6
+            List<Edge> back = GenerateTriangleBase(i_nodes);    // 2.4
+            CastCornerShadowNodes();                            // 2.6
             if (!is_valid)
                 return;
             m_w_edges.AddRange(back);
-            cleaup();
-            castObjectShadows();                                // 2.5
+            Cleaup();
+            CastObjectShadows();                                // 2.5
             if (!is_valid)
                 return;
-            generateVisibilityArea();                           // 2.7
+            GenerateVisibilityArea();                           // 2.7
         }
 
         //------------------------------2.3 start
-        private List<Node> generateInterceptNodes()
+        private List<Node> GenerateInterceptNodes()
         {
             List<Node> i_nodes = new List<Node>();
             for (int i = m_w_edges.Count - 1; i >= 0; i--)
@@ -74,13 +75,13 @@ namespace GOH
         }
         //------------------------------2.3 end
         //------------------------------2.4 start
-        private List<Edge> generateTriangleBase(List<Node> i_nodes)
+        private List<Edge> GenerateTriangleBase(List<Node> i_nodes)
         {
             List<Edge> back = new List<Edge>();
             Node prev = dummy_node_0;
             while (i_nodes.Count != 0)
             {
-                Node next = getClosestInterceptNode(prev.position, i_nodes);
+                Node next = GetClosestInterceptNode(prev.position, i_nodes);
                 Edge edge = new Edge(prev, next);
                 back.Add(edge);
                 prev = next;
@@ -91,7 +92,7 @@ namespace GOH
             return back;
         }
 
-        private Node getClosestInterceptNode(Vector2 position, List<Node> i_nodes)
+        private Node GetClosestInterceptNode(Vector2 position, List<Node> i_nodes)
         {
             Node closest_node = null;
             float distance = float.PositiveInfinity;
@@ -109,7 +110,7 @@ namespace GOH
         //------------------------------2.4 end
         //------------------------------2.5 start
 
-        private void castObjectShadows()
+        private void CastObjectShadows()
         {
             for (int j = 0; j < m_p_nodes.Count; j++)
             {
@@ -156,7 +157,7 @@ namespace GOH
         }
         //------------------------------2.5 end
         //------------------------------2.6 start
-        private void castCornerShadowNodes()
+        private void CastCornerShadowNodes()
         {
             float left_distance = Helpers.Distance(dummy_node_0, guard_node);
             Vector2 guard_position = guard_node.position;
@@ -218,7 +219,7 @@ namespace GOH
         }
         //------------------------------2.6 end
         //------------------------------2.7 start
-        private void generateVisibilityArea()
+        private void GenerateVisibilityArea()
         {
             Edge previous_edge = guard_node.neightbour_edges[0];
             Node current = guard_node.GetNeighborNode(0);
@@ -255,7 +256,7 @@ namespace GOH
         //------------------------------2.7 end
         //------------------------------Cleanup start
 
-        private void cleaup()
+        private void Cleaup()
         {
             for (int i = m_p_nodes.Count - 1; i >= 0; i--)
             {
@@ -298,22 +299,22 @@ namespace GOH
             indices = triangle_indices.ToArray();
         }
 
-        public int count()
+        public int Count()
         {
             return vis_graph.Count;
         }
 
-        public Node last()
+        public Node Last()
         {
             return vis_graph[vis_graph.Count - 1];
         }
 
-        public Node first()
+        public Node First()
         {
             return vis_graph[0];
         }
 
-        public Node at(int index)
+        public Node At(int index)
         {
             return vis_graph[index];
         }
@@ -323,7 +324,7 @@ namespace GOH
             return vis_graph.IndexOf(n);
         }
 
-        public bool compare(VisibilityPolygon vp)
+        public bool Compare(VisibilityPolygon vp)
         {
             if (vis_graph.Count != vp.vis_graph.Count)
                 return false;
@@ -333,17 +334,17 @@ namespace GOH
             return true;
         }
 
-        public Pip getPathPip()
+        public Pip GetPathPip()
         {
             return pip;
         }
 
-        public float getTimestamp()
+        public float GetTimestamp()
         {
             return pip.timestamp;
         }
 
-        public List<Node> getVisibilityArea()
+        public List<Node> GetVisibilityArea()
         {
             return vis_graph;
         }

@@ -126,10 +126,10 @@ namespace GOH
         public List<VisibilityPolygon> GenerteIntermediatePolygons(VisibilityPolygon poly_0, VisibilityPolygon poly_1)
         {
             List<VisibilityPolygon> polys = new List<VisibilityPolygon>();
-            if (poly_1.getTimestamp() - poly_0.getTimestamp() <= m_threshold)
+            if (poly_1.GetTimestamp() - poly_0.GetTimestamp() <= m_threshold)
                 return polys;
             polys.AddRange(GenerateVisibilityPair(poly_0, poly_1));
-            while (!polys[polys.Count - 1].compare(poly_1) && poly_1.getTimestamp() - polys[polys.Count - 1].getTimestamp() > m_threshold)
+            while (!polys[polys.Count - 1].Compare(poly_1) && poly_1.GetTimestamp() - polys[polys.Count - 1].GetTimestamp() > m_threshold)
                 polys.AddRange(GenerateVisibilityPair(polys[polys.Count - 1], poly_1));
             return polys;
         }
@@ -141,12 +141,12 @@ namespace GOH
             VisibilityPolygon B = poly_0;
             VisibilityPolygon A = poly_1;
 
-            while (A.getTimestamp() - B.getTimestamp() > m_threshold)
+            while (A.GetTimestamp() - B.GetTimestamp() > m_threshold)
             {
-                Pip average = Helpers.Average(A.getPathPip(), B.getPathPip());
+                Pip average = Helpers.Average(A.GetPathPip(), B.GetPathPip());
                 VisibilityPolygon N = GetVisibilityPolygon(average);
 
-                _ = N.compare(B) ? B = N : A = N;
+                _ = N.Compare(B) ? B = N : A = N;
             }
             if (B != poly_0)
                 polys.Add(B);
