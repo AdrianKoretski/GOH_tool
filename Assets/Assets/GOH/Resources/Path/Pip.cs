@@ -14,4 +14,11 @@ public class Pip
         this.orientation = orientation;
         this.timestamp = timestamp;
     }
+
+    public Pip(Pip pip)
+    {
+        this.position = pip.position;
+        this.orientation = pip.orientation;
+        this.timestamp = pip.timestamp;
+    }
 }

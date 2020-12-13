@@ -49,7 +49,7 @@ namespace GOH
 
         private VisibilityPolygon GenerateVisibilityPolygonWiggle(Pip pip)
         {
-            Pip delta_pip = pip;
+            Pip delta_pip = new Pip(pip);
             delta_pip.position.x += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
             delta_pip.position.y += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
             return GenerateVisibilityPolygon(delta_pip);
