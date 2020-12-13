@@ -15,13 +15,14 @@ namespace GOH
         private List<VisibilityPolygon> vis_polys = new List<VisibilityPolygon>();
         private VisibilityManifold visibility_manifold;
 
+        public Settings settings;
+
         void Start()
         {
             List<Node> nodes = obstacle_manager.getObstacles();
             m_path = path_manager.GeneratePath();
             if (m_path == null)
                 Destroy(this);
-            Settings settings = this.GetComponent<Settings>();
             vis_poly_gen = new VisibilityPolygonGenerator(nodes, settings);
             visibility_manifold = new VisibilityManifold();
         }
@@ -36,7 +37,7 @@ namespace GOH
         {
             if (m_path_index >= m_path.Count)
                 return;
-            VisibilityPolygon vis = vis_poly_gen.GenerateVisibilityPolygon(m_path[m_path_index]);
+            VisibilityPolygon vis = vis_poly_gen.GetVisibilityPolygon(m_path[m_path_index]);
             AddPolygon(vis);
         }
 

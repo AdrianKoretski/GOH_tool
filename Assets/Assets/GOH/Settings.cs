@@ -16,5 +16,7 @@ namespace GOH
         public float FieldOfView = 90;
         [Tooltip("When the construction of a polygon fails (usually due to colinear points), the positions is wiggled randomly within this value and attempted again.")]
         public float WiggleDelta = 0.001f;
+        [Tooltip("Number of attempts to create a (slightly offset) visibility polygon after an initial failure for a given pip.")]
+        public int MaxReAttempts = 3;
     }
 }

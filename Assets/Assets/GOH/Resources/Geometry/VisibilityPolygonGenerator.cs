@@ -9,6 +9,7 @@ namespace GOH
         [SerializeField] private float m_field_of_view;
         [SerializeField] private float m_wiggle_delta;
         [SerializeField] private float m_threshold;
+        [SerializeField] private int m_max_reattempts;
 
         [SerializeField] private List<Node> m_terrain_nodes;
 
@@ -19,11 +20,23 @@ namespace GOH
             m_field_of_view = settings.FieldOfView * Mathf.PI / 360;
             m_wiggle_delta = settings.WiggleDelta;
             m_threshold = settings.NonSimilarityThreshold;
+            m_max_reattempts = settings.MaxReAttempts;
         }
 
         //------------------------------2.0 start
 
-        public VisibilityPolygon GenerateVisibilityPolygon(Pip pip)
+        public VisibilityPolygon GetVisibilityPolygon(Pip pip)
+        {
+            VisibilityPolygon vis_polygon = GenerateVisibilityPolygon(pip);
+            int safety_count = 0;
+            while (!vis_polygon.is_valid && safety_count < m_max_reattempts)
+                vis_polygon = GenerateVisibilityPolygonWiggle(pip);
+            if (!vis_polygon.is_valid)
+                MonoBehaviour.print("oh no");
+            return vis_polygon;
+        }
+
+        private VisibilityPolygon GenerateVisibilityPolygon(Pip pip)
         {
             Vector2[] visibility_triangle = GenerateVisibilityTriangle(pip);
 
@@ -31,27 +44,18 @@ namespace GOH
             List<Edge> edge_list = GenerateObstacleEdges(node_list);
 
             VisibilityPolygon new_vis_polygon = new VisibilityPolygon(visibility_triangle, pip, node_list, edge_list);
-
-            int safety = 0;
-            while (safety < 3 && !new_vis_polygon.is_valid)
-            {
-                Pip delta_pip = pip;
-                delta_pip.position.x += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
-                delta_pip.position.y += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
-                visibility_triangle = GenerateVisibilityTriangle(delta_pip);
-
-                node_list = GenerateObstacleVertices(visibility_triangle, delta_pip.timestamp);
-                edge_list = GenerateObstacleEdges(node_list);
-
-                new_vis_polygon = new VisibilityPolygon(visibility_triangle, delta_pip, node_list, edge_list);
-                safety++;
-            }
-            if (safety == 3)
-            {
-                MonoBehaviour.print("oh no");
-            }
             return new_vis_polygon;
         }
+
+        private VisibilityPolygon GenerateVisibilityPolygonWiggle(Pip pip)
+        {
+            Pip delta_pip = pip;
+            delta_pip.position.x += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
+            delta_pip.position.y += UnityEngine.Random.Range(-m_wiggle_delta, m_wiggle_delta);
+            return GenerateVisibilityPolygon(delta_pip);
+        }
+
+
 
         //------------------------------2.0 end
         //------------------------------2.1 start
@@ -139,7 +143,7 @@ namespace GOH
 
             while (A.getTimestamp() - B.getTimestamp() > m_threshold)
             {
-                VisibilityPolygon N = GenerateVisibilityPolygon(Helpers.Average(A.getPathPip(), B.getPathPip()));
+                VisibilityPolygon N = GetVisibilityPolygon(Helpers.Average(A.getPathPip(), B.getPathPip()));
                 if (N.compare(B))
                     B = N;
                 else
