@@ -8,14 +8,12 @@ namespace GOH
     {
         public readonly Pip pip;
         public readonly Node guard_node;
-        [SerializeField] private Node leg_node_0;
-        [SerializeField] private Node leg_node_1;
-        [SerializeField] private Node dummy_node_0;
-        [SerializeField] private Node dummy_node_1;
-        [SerializeField] private List<Node> m_p_nodes = new List<Node>();
-        [SerializeField] private List<Edge> m_w_edges = new List<Edge>();
-        [SerializeField] private List<Node> vis_graph = new List<Node>();
-        public Boolean is_valid = true;
+        private Node dummy_node_0;
+        private Node dummy_node_1;
+        private List<Node> m_p_nodes = new List<Node>();
+        private List<Edge> m_w_edges = new List<Edge>();
+        private List<Node> vis_graph = new List<Node>();
+        public Boolean is_valid { get; private set; }
 
         //------------------------------Setup start
 
@@ -27,6 +25,7 @@ namespace GOH
             this.pip = pip;
             m_w_edges = edges;
             m_p_nodes = nodes;
+            is_valid = true;
 
             GeneratePolygon();
         }
@@ -186,8 +185,7 @@ namespace GOH
             }
             m_w_edges.AddRange(new_edges);
             new_edges.Clear();
-            leg_node_0 = closest_left;
-            new Edge(leg_node_0, guard_node);
+            new Edge(closest_left, guard_node);
 
             float right_distance = Helpers.Distance(dummy_node_1, guard_node);
             Node closest_right = dummy_node_1;
@@ -214,8 +212,7 @@ namespace GOH
             }
             m_w_edges.AddRange(new_edges);
             new_edges.Clear();
-            leg_node_1 = closest_right;
-            new Edge(leg_node_1, guard_node);
+            new Edge(closest_right, guard_node);
         }
         //------------------------------2.6 end
         //------------------------------2.7 start

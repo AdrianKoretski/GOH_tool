@@ -6,8 +6,8 @@ namespace GOH
 {
     public class Edge
     {
-        [SerializeField] private Node m_node_0;
-        [SerializeField] private Node m_node_1;
+        private Node m_node_0;
+        private Node m_node_1;
 
         public Edge(Node node_0, Node node_1)
         {

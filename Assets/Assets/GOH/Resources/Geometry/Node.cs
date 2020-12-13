@@ -14,7 +14,7 @@ namespace GOH
             guard,
             leg
         };
-        [SerializeField] private static int m_pinned_id_count = 0;
+        private static int m_pinned_id_count = 0;
 
         public readonly NodeType type;
         public readonly int ID_0;

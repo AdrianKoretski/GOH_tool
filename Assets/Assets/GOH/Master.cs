@@ -9,8 +9,8 @@ namespace GOH
         PathManager path_manager = new PathManager();
         VisibilityPolygonGenerator vis_poly_gen;
 
-        [SerializeField] private List<Pip> m_path;
-        [SerializeField] private int m_path_index;
+        private List<Pip> m_path;
+        private int m_path_index;
 
         private List<VisibilityPolygon> vis_polys = new List<VisibilityPolygon>();
         private VisibilityManifold visibility_manifold;

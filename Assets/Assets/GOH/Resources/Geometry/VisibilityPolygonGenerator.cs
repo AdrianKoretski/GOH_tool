@@ -5,13 +5,12 @@ namespace GOH
 {
     public class VisibilityPolygonGenerator
     {
-        [SerializeField] private float m_depth_of_field;
-        [SerializeField] private float m_field_of_view;
-        [SerializeField] private float m_wiggle_delta;
-        [SerializeField] private float m_threshold;
-        [SerializeField] private int m_max_reattempts;
-
-        [SerializeField] private List<Node> m_terrain_nodes;
+        public readonly float m_depth_of_field;
+        public readonly float m_field_of_view;
+        public readonly float m_wiggle_delta;
+        public readonly float m_threshold;
+        public readonly int m_max_reattempts;
+        public readonly List<Node> m_terrain_nodes;
 
         public VisibilityPolygonGenerator(List<Node> terrain_nodes, Settings settings)
         {
