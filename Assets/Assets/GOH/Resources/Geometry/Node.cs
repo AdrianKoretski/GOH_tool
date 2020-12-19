@@ -71,6 +71,13 @@ namespace GOH
             node_1.neighbours.Remove(node_0);
         }
 
+        public static void DisconnectAll(Node node)
+        {
+            foreach(Node neighbour in node.neighbours)
+                neighbour.neighbours.Remove(node);
+            node.neighbours.Clear();
+        }
+
         public bool IsNeighbor(Node node)
         {
             return neighbours.Contains(node);

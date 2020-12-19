@@ -57,9 +57,9 @@ namespace GOH
             return IsContained(vectors[0], vectors[1], vectors[2], vector_p);
         }
 
-        public static bool IsContained(Node node_0, Node node_1, Node node_2, Node node_p)
+        public static bool IsContained(Node[] triangle, Node node)
         {
-            return IsContained(node_0.position, node_1.position, node_2.position, node_p.position);
+            return IsContained(triangle[0].position, triangle[1].position, triangle[2].position, node.position);
         }
 
         public static bool HasIntersect(Vector2 vector_0, Vector2 vector_1, Vector2 vector_2, Vector2 vector_3)

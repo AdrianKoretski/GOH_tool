@@ -97,7 +97,7 @@ namespace GOH
         {
             for (int j = 0; j < m_pinned_nodes.Count; j++)
             {
-                if (!Helpers.IsContained(m_visibility_triangle[0], m_visibility_triangle[1], m_visibility_triangle[2], m_pinned_nodes[j]))
+                if (!Helpers.IsContained(m_visibility_triangle, m_pinned_nodes[j]))
                     continue;
                 Vector2 guard_pos = m_visibility_triangle[0].position;
                 Vector2 o_node_pos = m_pinned_nodes[j].position;
@@ -221,27 +221,15 @@ namespace GOH
 
         private void Cleaup()
         {
-            for (int i = m_pinned_nodes.Count - 1; i >= 0; i--)
+            foreach (Node pinned_node in m_pinned_nodes)
             {
-                if (Helpers.IsContained(m_visibility_triangle[0], m_visibility_triangle[1], m_visibility_triangle[2], m_pinned_nodes[i]))
-                    continue;
-                for (int j = m_pinned_nodes[i].neighbours.Count - 1; j >= 0; j--)
+                if (!Helpers.IsContained(m_visibility_triangle, pinned_node))
                 {
-                    Edge neighbor = FindEdge(m_pinned_nodes[i], m_pinned_nodes[i].neighbours[j]);
-                    m_wall_edges.Remove(neighbor);
-                    Node.Disconnect(m_pinned_nodes[i], m_pinned_nodes[i].neighbours[j]);
+                    m_wall_edges.RemoveAll((Edge e) => { return e.Connects(pinned_node); });
+                    Node.DisconnectAll(pinned_node);
                 }
-                //Destroy(m_p_nodes[i].gameObject);
-                m_pinned_nodes.RemoveAt(i);
             }
-        }
-
-        Edge FindEdge(Node node_0, Node node_1)
-        {
-            foreach (Edge edge in m_wall_edges)
-                if (edge.Connects(node_0) && edge.Connects(node_1))
-                    return edge;
-            return null;
+            m_pinned_nodes.RemoveAll((Node n) => { return !Helpers.IsContained(m_visibility_triangle, n); });
         }
 
         //------------------------------Cleanup end
