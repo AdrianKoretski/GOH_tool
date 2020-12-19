@@ -188,7 +188,7 @@ namespace GOH
         private void GenerateVisibilityArea()
         {
             Node previous = m_visibility_triangle[0];
-            Node current = m_visibility_triangle[0].GetNeighborNode(0);
+            Node current = m_visibility_triangle[0].neighbours[0];
             Node next;
             vis_graph.Add(m_visibility_triangle[0]);
             vis_graph.Add(current);
@@ -196,14 +196,14 @@ namespace GOH
             {
                 next = null;
                 float min = float.PositiveInfinity;
-                for (int i = 0; i < current.GetNeighborCount(); i++)
+                foreach (Node node_neighbour in current.neighbours)
                 {
-                    if (current.neighbours[i] == previous)
+                    if (node_neighbour == previous)
                         continue;
-                    if (min > Helpers.Angle(previous, current, current.GetNeighborNode(i)))
+                    if (min > Helpers.Angle(previous, current, node_neighbour))
                     {
-                        min = Helpers.Angle(previous, current, current.GetNeighborNode(i));
-                        next = current.GetNeighborNode(i);
+                        min = Helpers.Angle(previous, current, node_neighbour);
+                        next = node_neighbour;
                     }
                 }
                 if (next == null)
@@ -225,7 +225,7 @@ namespace GOH
             {
                 if (Helpers.IsContained(m_visibility_triangle[0], m_visibility_triangle[1], m_visibility_triangle[2], m_pinned_nodes[i]))
                     continue;
-                for (int j = m_pinned_nodes[i].GetNeighborCount() - 1; j >= 0; j--)
+                for (int j = m_pinned_nodes[i].neighbours.Count - 1; j >= 0; j--)
                 {
                     Edge neighbor = FindEdge(m_pinned_nodes[i], m_pinned_nodes[i].neighbours[j]);
                     m_wall_edges.Remove(neighbor);

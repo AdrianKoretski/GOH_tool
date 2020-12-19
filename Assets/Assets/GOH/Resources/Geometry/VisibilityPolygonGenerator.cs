@@ -99,9 +99,9 @@ namespace GOH
 
         private bool HasEdgeCrossingTriangle(Vector2[] visibility_triangle, Node node)
         {
-            for (int i = 0; i < node.GetNeighborCount(); i++)
+            foreach (Node node_neighbour in node.neighbours)
                 for (int j = 0; j < 3; j++)
-                    if (Helpers.HasIntersect(node.position, node.GetNeighborNode(i).position, visibility_triangle[j], visibility_triangle[(j + 1) % 3]))
+                    if (Helpers.HasIntersect(node.position, node_neighbour.position, visibility_triangle[j], visibility_triangle[(j + 1) % 3]))
                         return true;
             return false;
         }
@@ -115,9 +115,9 @@ namespace GOH
             foreach (Node node in node_list)
             {
                 Node p_node = m_terrain_nodes[node.ID_0];
-                for (int j = 0; j < p_node.GetNeighborCount(); j++)
+                for (int j = 0; j < p_node.neighbours.Count; j++)
                 {
-                    Node p_node_neighbor = p_node.GetNeighborNode(j);
+                    Node p_node_neighbor = p_node.neighbours[j];
                     Node neighbor = FindNodeCopy(p_node_neighbor, node_list);
                     if (neighbor != null && !node.IsNeighbor(neighbor))
                         edge_list.Add(new Edge(node, neighbor));

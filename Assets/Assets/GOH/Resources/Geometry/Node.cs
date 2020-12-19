@@ -59,29 +59,9 @@ namespace GOH
                 || node_0.type == NodeType.pinned && node_1.type == NodeType.obstacle;
         }
 
-        public void RemoveConnection(Node node)
-        {
-            neighbours.Remove(node);
-        }
-
-        public void AddConnection(Node node)
-        {
-            neighbours.Add(node);
-        }
-
         public bool IsNeighbor(Node node)
         {
             return neighbours.Contains(node);
-        }
-
-        public int GetNeighborCount()
-        {
-            return neighbours.Count;
-        }
-
-        public Node GetNeighborNode(int index)
-        {
-            return neighbours[index];
         }
 
         public Node CopyToPinned(float timestamp)
@@ -96,8 +76,8 @@ namespace GOH
 
         public bool HasNeighborFromTime(float time)
         {
-            for (int i = 0; i < GetNeighborCount(); i++)
-                if (GetNeighborNode(i).timestamp == time)
+            foreach (Node node in neighbours)
+                if (node.timestamp == time)
                     return true;
             return false;
         }
