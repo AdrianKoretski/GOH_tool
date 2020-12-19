@@ -115,10 +115,9 @@ namespace GOH
             foreach (Node node in node_list)
             {
                 Node p_node = m_terrain_nodes[node.ID_0];
-                for (int j = 0; j < p_node.neighbours.Count; j++)
+                foreach (Node p_node_neighbour in p_node.neighbours)
                 {
-                    Node p_node_neighbor = p_node.neighbours[j];
-                    Node neighbor = FindNodeCopy(p_node_neighbor, node_list);
+                    Node neighbor = FindNodeCopy(p_node_neighbour, node_list);
                     if (neighbor != null && !node.IsNeighbor(neighbor))
                         edge_list.Add(new Edge(node, neighbor));
                 }
