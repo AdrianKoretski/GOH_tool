@@ -22,7 +22,8 @@ namespace GOH
         public readonly Vector2 position;
         public readonly float timestamp;
 
-        public List<Edge> neightbour_edges = new List<Edge>();
+        public List<Edge> neighbour_edges = new List<Edge>();
+        public List<Node> neighbours = new List<Node>();
 
         public Node(Vector2 position, NodeType type, float timestamp = -1, int ID_0 = -1, int ID_1 = -1)
         {
@@ -61,46 +62,54 @@ namespace GOH
 
         public void RemoveConnection(Edge edge)
         {
-            if (!neightbour_edges.Remove(edge))
+            if (!neighbour_edges.Remove(edge))
                 UnityEngine.Debug.LogError("[ TODO: ERROR MESSAGE ]");  // TODO: Write a proper error message. 
+        }
+
+        public void RemoveConnection(Node node)
+        {
+            neighbours.Remove(node);
         }
 
         public void AddConnection(Edge edge)
         {
-            if (!neightbour_edges.Contains(edge))
-                neightbour_edges.Add(edge);
+            if (!neighbour_edges.Contains(edge))
+            {
+                neighbour_edges.Add(edge);
+                neighbours.Add(edge.GetOtherNode(this));
+            }
             else
                 UnityEngine.Debug.LogError("[ TODO: ERROR MESSAGE ]");  // TODO: Write a proper error message. 
         }
 
         public bool IsNeighbor(Node node)
         {
-            for (int i = 0; i < neightbour_edges.Count; i++)
-                if (neightbour_edges[i].Connects(node))
+            for (int i = 0; i < neighbour_edges.Count; i++)
+                if (neighbour_edges[i].Connects(node))
                     return true;
             return false;
         }
 
         public bool IsNeighbor(Edge edge)
         {
-            return neightbour_edges.Contains(edge);
+            return neighbour_edges.Contains(edge);
         }
 
         public int GetNeighborCount()
         {
-            return neightbour_edges.Count;
+            return neighbour_edges.Count;
         }
 
         public Node GetNeighborNode(int index)
         {
-            return neightbour_edges[index].GetOtherNode(this);
+            return neighbour_edges[index].GetOtherNode(this);
         }
 
         public Edge GetNeighborEdge(Node v)
         {
-            for (int i = 0; i < neightbour_edges.Count; i++)
-                if (neightbour_edges[i].Connects(v))
-                    return neightbour_edges[i];
+            for (int i = 0; i < neighbour_edges.Count; i++)
+                if (neighbour_edges[i].Connects(v))
+                    return neighbour_edges[i];
             return null;
         }
 

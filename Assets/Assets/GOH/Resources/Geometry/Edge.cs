@@ -23,6 +23,9 @@ namespace GOH
             edges[0] = new Edge(m_node_0, node);
             edges[1] = new Edge(node, m_node_1);
 
+            m_node_0.RemoveConnection(m_node_1);
+            m_node_1.RemoveConnection(m_node_0);
+
             m_node_0.RemoveConnection(this);
             m_node_1.RemoveConnection(this);
 
@@ -31,6 +34,9 @@ namespace GOH
 
         public void Destroy()
         {
+            m_node_0.RemoveConnection(m_node_1);
+            m_node_1.RemoveConnection(m_node_0);
+
             m_node_0.RemoveConnection(this);
             m_node_1.RemoveConnection(this);
         }
