@@ -6,53 +6,44 @@ namespace GOH
 {
     public class Edge
     {
-        private Node m_node_0;
-        private Node m_node_1;
+        public Node node_0;
+        public Node node_1;
 
         public Edge(Node node_0, Node node_1)
         {
-            m_node_0 = node_0;
-            m_node_1 = node_1;
+            this.node_0 = node_0;
+            this.node_1 = node_1;
 
-            m_node_0.neighbours.Add(m_node_1);
-            m_node_1.neighbours.Add(m_node_0);
+            this.node_0.neighbours.Add(this.node_1);
+            this.node_1.neighbours.Add(this.node_0);
         }
 
         public Edge[] Split(Node node)
         {
             Edge[] edges = new Edge[2];
-            edges[0] = new Edge(m_node_0, node);
-            edges[1] = new Edge(node, m_node_1);
+            edges[0] = new Edge(node_0, node);
+            edges[1] = new Edge(node, node_1);
 
-            m_node_0.neighbours.Remove(m_node_1);
-            m_node_1.neighbours.Remove(m_node_0);
+            node_0.neighbours.Remove(node_1);
+            node_1.neighbours.Remove(node_0);
 
             return edges;
         }
 
         public void Destroy()
         {
-            m_node_0.neighbours.Remove(m_node_1);
-            m_node_1.neighbours.Remove(m_node_0);
-        }
-
-        public Node GetNode(int index)
-        {
-            if (index == 0)
-                return m_node_0;
-            if (index == 1)
-                return m_node_1;
-            return null;
+            node_0.neighbours.Remove(node_1);
+            node_1.neighbours.Remove(node_0);
         }
 
         public int[] GetNodeIDs()
         {
-            return new int[] { m_node_0.ID_0, m_node_1.ID_0 };
+            return new int[] { node_0.ID_0, node_1.ID_0 };
         }
 
         public bool Connects(Node v)
         {
-            return v == m_node_0 || v == m_node_1;
+            return v == node_0 || v == node_1;
         }
     }
 }

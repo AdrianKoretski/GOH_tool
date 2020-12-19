@@ -28,8 +28,8 @@ namespace GOH
         {
             Vector2 p_0 = node_0.position;
             Vector2 p_1 = node_1.position;
-            Vector2 q_0 = edge.GetNode(0).position;
-            Vector2 q_1 = edge.GetNode(1).position;
+            Vector2 q_0 = edge.node_0.position;
+            Vector2 q_1 = edge.node_1.position;
             Vector2 r = p_1 - p_0;
             Vector2 s = q_1 - q_0;
             if (Cross(r, s) == 0)
@@ -82,12 +82,12 @@ namespace GOH
 
         public static bool HasIntersect(Edge edge, Node node_0, Node node_1)
         {
-            return HasIntersect(edge.GetNode(0).position, edge.GetNode(1).position, node_0.position, node_1.position);
+            return HasIntersect(edge.node_0.position, edge.node_1.position, node_0.position, node_1.position);
         }
 
         public static bool HasIntersect(Edge edge, Vector2 vector_0, Vector2 vector_1)
         {
-            return HasIntersect(edge.GetNode(0).position, edge.GetNode(1).position, vector_0, vector_1);
+            return HasIntersect(edge.node_0.position, edge.node_1.position, vector_0, vector_1);
         }
 
         public static Pip Average(Pip pip_0, Pip pip_1)
