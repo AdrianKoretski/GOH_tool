@@ -47,7 +47,7 @@ namespace GOH
                 if (Helpers.HasIntersect(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[2]))
                 {
                     Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[2]);
-                    Node i_node = new Node(inter_point, Node.NodeType.intercept, pip.timestamp, m_wall_edges[i].GetNodeIDs()[0], m_wall_edges[i].GetNodeIDs()[1]);
+                    Node i_node = new Node(inter_point, Node.NodeType.intercept, pip.timestamp, m_wall_edges[i].node_0.ID_0, m_wall_edges[i].node_1.ID_0);
                     i_nodes.Add(i_node);
                     Edge[] splits = m_wall_edges[i].Split(i_node);
                     m_wall_edges.AddRange(splits);

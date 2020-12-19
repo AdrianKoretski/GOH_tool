@@ -36,11 +36,6 @@ namespace GOH
             node_1.neighbours.Remove(node_0);
         }
 
-        public int[] GetNodeIDs()
-        {
-            return new int[] { node_0.ID_0, node_1.ID_0 };
-        }
-
         public bool Connects(Node v)
         {
             return v == node_0 || v == node_1;
