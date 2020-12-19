@@ -46,8 +46,8 @@ namespace GOH
         private void GenerateEdges(List<Node> nodes)
         {
             for (int j = 0; j < nodes.Count - 1; j++)
-                new Edge(nodes[j], nodes[j + 1]);
-            new Edge(nodes[nodes.Count - 1], nodes[0]);
+                Node.Connect(nodes[j], nodes[j + 1]);
+            Node.Connect(nodes[nodes.Count - 1], nodes[0]);
         }
 
     }

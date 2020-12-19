@@ -98,7 +98,7 @@ namespace GOH
             Node n0 = second_last().First();
             Node n1 = last().Last();
             connectNodeTime(second_last().Count() - 1, last().Count() - 1, timeStamp);
-            new Edge(n0, n1);
+            Node.Connect(n0, n1);
             addTriangle
                 (
                 second_last().Last(),
@@ -309,7 +309,7 @@ namespace GOH
         {
             Node n0 = second_last().At(node_index_0);
             Node n1 = last().At(node_index_1);
-            new Edge(n0, n1);
+            Node.Connect(n0, n1);
             GameObject go = Visualiser.CreateLine(null, getManifoldPosition(layer_count() - 2, node_index_0), getManifoldPosition(layer_count() - 1, node_index_1), Color.black, Color.black, "Line " + " ");
             SimplifiedGraphVisualiser.instance.AddGeom(go, timeStamp);
         }

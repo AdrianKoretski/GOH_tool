@@ -14,8 +14,7 @@ namespace GOH
             this.node_0 = node_0;
             this.node_1 = node_1;
 
-            this.node_0.neighbours.Add(this.node_1);
-            this.node_1.neighbours.Add(this.node_0);
+            Node.Connect(node_0, node_1);
         }
 
         public Edge[] Split(Node node)
@@ -24,16 +23,9 @@ namespace GOH
             edges[0] = new Edge(node_0, node);
             edges[1] = new Edge(node, node_1);
 
-            node_0.neighbours.Remove(node_1);
-            node_1.neighbours.Remove(node_0);
+            Node.Disconnect(node_0, node_1);
 
             return edges;
-        }
-
-        public void Destroy()
-        {
-            node_0.neighbours.Remove(node_1);
-            node_1.neighbours.Remove(node_0);
         }
 
         public bool Connects(Node v)

@@ -125,7 +125,7 @@ namespace GOH
                 if (distance != float.PositiveInfinity)
                 {
                     Node node = new Node(closest_point, Node.NodeType.shadow, pip.timestamp, m_pinned_nodes[j].ID_0);
-                    new Edge(m_pinned_nodes[j], node);
+                    Node.Connect(m_pinned_nodes[j], node);
 
                     m_wall_edges.Remove(closest_edge);
                     Edge[] splits = closest_edge.Split(node);
@@ -159,7 +159,7 @@ namespace GOH
             }
             m_wall_edges.AddRange(new_edges);
             new_edges.Clear();
-            new Edge(closest_left, m_visibility_triangle[0]);
+            Node.Connect(closest_left, m_visibility_triangle[0]);
 
             float right_distance = Helpers.Distance(m_visibility_triangle[2], m_visibility_triangle[0]);
             Node closest_right = m_visibility_triangle[2];
@@ -181,7 +181,7 @@ namespace GOH
             }
             m_wall_edges.AddRange(new_edges);
             new_edges.Clear();
-            new Edge(closest_right, m_visibility_triangle[0]);
+            Node.Connect(closest_right, m_visibility_triangle[0]);
         }
         //------------------------------2.6 end
         //------------------------------2.7 start
@@ -229,7 +229,7 @@ namespace GOH
                 {
                     Edge neighbor = FindEdge(m_pinned_nodes[i], m_pinned_nodes[i].neighbours[j]);
                     m_wall_edges.Remove(neighbor);
-                    neighbor.Destroy();
+                    Node.Disconnect(m_pinned_nodes[i], m_pinned_nodes[i].neighbours[j]);
                 }
                 //Destroy(m_p_nodes[i].gameObject);
                 m_pinned_nodes.RemoveAt(i);

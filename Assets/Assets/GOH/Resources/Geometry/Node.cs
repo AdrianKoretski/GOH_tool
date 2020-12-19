@@ -59,6 +59,18 @@ namespace GOH
                 || node_0.type == NodeType.pinned && node_1.type == NodeType.obstacle;
         }
 
+        public static void Connect(Node node_0, Node node_1)
+        {
+            node_0.neighbours.Add(node_1);
+            node_1.neighbours.Add(node_0);
+        }
+
+        public static void Disconnect(Node node_0, Node node_1)
+        {
+            node_0.neighbours.Remove(node_1);
+            node_1.neighbours.Remove(node_0);
+        }
+
         public bool IsNeighbor(Node node)
         {
             return neighbours.Contains(node);
