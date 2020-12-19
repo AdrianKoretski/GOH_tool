@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace GOH
 {
@@ -32,7 +33,7 @@ namespace GOH
             Vector2 r = p_1 - p_0;
             Vector2 s = q_1 - q_0;
             if (Cross(r, s) == 0)
-                return new Vector2(float.NaN, float.NaN);
+                throw new Exception("Ill defined intercept");
             float t = Cross((q_0 - p_0), s) / Cross(r, s);
             float u = Cross((q_0 - p_0), r) / Cross(r, s);
             if (t < 0 || u < 0 || u > 1)

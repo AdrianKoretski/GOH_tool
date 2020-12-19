@@ -26,14 +26,29 @@ namespace GOH
 
         public VisibilityPolygon GetVisibilityPolygon(Pip pip)
         {
-            VisibilityPolygon vis_polygon = GenerateVisibilityPolygon(pip);
+            VisibilityPolygon vis_polygon = null;
             int safety_count = 0;
-            while (!vis_polygon.is_valid && safety_count < m_max_reattempts)
+            try
             {
-                vis_polygon = GenerateVisibilityPolygonWiggle(pip);
-                safety_count++;
+                vis_polygon = GenerateVisibilityPolygon(pip);
             }
-            if (!vis_polygon.is_valid)
+            catch
+            {
+                safety_count = 0;
+                while (safety_count < m_max_reattempts)
+                {
+                    try
+                    {
+                        vis_polygon = GenerateVisibilityPolygonWiggle(pip);
+                        break;
+                    }
+                    catch
+                    {
+                        safety_count++;
+                    }
+                }
+            }
+            if (safety_count == m_max_reattempts)
                 MonoBehaviour.print("oh no");                               // TODO: Add proper error handling. 
             return vis_polygon;
         }

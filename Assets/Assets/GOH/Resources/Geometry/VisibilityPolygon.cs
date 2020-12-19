@@ -11,7 +11,6 @@ namespace GOH
         private List<Node> m_pinned_nodes = new List<Node>();
         private List<Edge> m_wall_edges = new List<Edge>();
         private List<Node> vis_graph = new List<Node>();
-        public bool is_valid { get; private set; }
 
         //------------------------------Setup start
 
@@ -22,7 +21,6 @@ namespace GOH
             this.pip = pip;
             m_wall_edges = edges;
             m_pinned_nodes = nodes;
-            is_valid = true;
 
             GeneratePolygon();
         }
@@ -32,17 +30,11 @@ namespace GOH
         private void GeneratePolygon()
         {
             List<Node> i_nodes = GenerateInterceptNodes();      // 2.3
-            if (!is_valid)
-                return;
             List<Edge> back = GenerateTriangleBase(i_nodes);    // 2.4
             CastCornerShadowNodes();                            // 2.6
-            if (!is_valid)
-                return;
             m_wall_edges.AddRange(back);
             Cleaup();
             CastObjectShadows();                                // 2.5
-            if (!is_valid)
-                return;
             GenerateVisibilityArea();                           // 2.7
         }
 
@@ -55,11 +47,6 @@ namespace GOH
                 if (Helpers.HasIntersect(m_wall_edges[i], visibility_triangle[1], visibility_triangle[2]))
                 {
                     Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], visibility_triangle[1], visibility_triangle[2]);
-                    if (float.IsNaN(inter_point.x))
-                    {
-                        is_valid = false;
-                        return null;
-                    }
                     Node i_node = new Node(inter_point, Node.NodeType.intercept, pip.timestamp, m_wall_edges[i].GetNodeIDs()[0], m_wall_edges[i].GetNodeIDs()[1]);
                     i_nodes.Add(i_node);
                     Edge[] splits = m_wall_edges[i].Split(i_node);
@@ -123,11 +110,6 @@ namespace GOH
                     if (m_pinned_nodes[j].IsNeighbor(m_wall_edges[i]))
                         continue;
                     Vector2 point = Helpers.InterceptPoint(m_wall_edges[i], visibility_triangle[0], m_pinned_nodes[j]);
-                    if (float.IsNaN(point.x))
-                    {
-                        is_valid = false;
-                        return;
-                    }
                     if (distance > (point - guard_pos).magnitude)
                     {
                         closest_edge = m_wall_edges[i];
@@ -164,11 +146,6 @@ namespace GOH
                 if (Helpers.HasIntersect(m_wall_edges[i], visibility_triangle[1], visibility_triangle[0]))
                 {
                     Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], visibility_triangle[1], visibility_triangle[0]);
-                    if (float.IsNaN(inter_point.x))
-                    {
-                        is_valid = false;
-                        return;
-                    }
                     Node dummy = new Node(inter_point, Node.NodeType.leg, pip.timestamp, 0);
                     new_edges.AddRange(m_wall_edges[i].Split(dummy));
                     m_wall_edges.RemoveAt(i);
@@ -191,11 +168,6 @@ namespace GOH
                 if (Helpers.HasIntersect(m_wall_edges[i], visibility_triangle[2], visibility_triangle[0]))
                 {
                     Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], visibility_triangle[2], visibility_triangle[0]);
-                    if (float.IsNaN(inter_point.x))
-                    {
-                        is_valid = false;
-                        return;
-                    }
                     Node dummy = new Node(inter_point, Node.NodeType.leg, pip.timestamp, 1);
                     new_edges.AddRange(m_wall_edges[i].Split(dummy));
                     m_wall_edges.RemoveAt(i);
@@ -235,10 +207,7 @@ namespace GOH
                     }
                 }
                 if (next == null)
-                {
-                    is_valid = false;
-                    break;
-                }
+                    throw new Exception("Invalid polygon. ");
                 if (next != visibility_triangle[0])
                 {
                     vis_graph.Add(next);
