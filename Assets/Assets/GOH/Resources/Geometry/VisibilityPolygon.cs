@@ -7,7 +7,7 @@ namespace GOH
     public class VisibilityPolygon
     {
         public readonly Pip pip;
-        public readonly Node[] visibility_triangle = new Node[3];
+        private Node[] m_visibility_triangle = new Node[3];
         private List<Node> m_pinned_nodes = new List<Node>();
         private List<Edge> m_wall_edges = new List<Edge>();
         private List<Node> vis_graph = new List<Node>();
@@ -17,7 +17,7 @@ namespace GOH
         public VisibilityPolygon(Vector2[] triangle_corners, Pip pip, List<Node> nodes, List<Edge> edges)
         {
             for (int i = 0; i < 3; i++)
-                visibility_triangle[i] = new Node(triangle_corners[i], i == 0 ? Node.NodeType.guard : Node.NodeType.leg, pip.timestamp, i);
+                m_visibility_triangle[i] = new Node(triangle_corners[i], i == 0 ? Node.NodeType.guard : Node.NodeType.leg, pip.timestamp, i);
             this.pip = pip;
             m_wall_edges = edges;
             m_pinned_nodes = nodes;
@@ -44,9 +44,9 @@ namespace GOH
             List<Node> i_nodes = new List<Node>();
             for (int i = m_wall_edges.Count - 1; i >= 0; i--)
             {
-                if (Helpers.HasIntersect(m_wall_edges[i], visibility_triangle[1], visibility_triangle[2]))
+                if (Helpers.HasIntersect(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[2]))
                 {
-                    Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], visibility_triangle[1], visibility_triangle[2]);
+                    Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[2]);
                     Node i_node = new Node(inter_point, Node.NodeType.intercept, pip.timestamp, m_wall_edges[i].GetNodeIDs()[0], m_wall_edges[i].GetNodeIDs()[1]);
                     i_nodes.Add(i_node);
                     Edge[] splits = m_wall_edges[i].Split(i_node);
@@ -61,7 +61,7 @@ namespace GOH
         private List<Edge> GenerateTriangleBase(List<Node> i_nodes)
         {
             List<Edge> back = new List<Edge>();
-            Node prev = visibility_triangle[1];
+            Node prev = m_visibility_triangle[1];
             while (i_nodes.Count != 0)
             {
                 Node next = GetClosestInterceptNode(prev.position, i_nodes);
@@ -70,7 +70,7 @@ namespace GOH
                 prev = next;
                 i_nodes.Remove(next);
             }
-            Edge e = new Edge(prev, visibility_triangle[2]);
+            Edge e = new Edge(prev, m_visibility_triangle[2]);
             back.Add(e);
             return back;
         }
@@ -97,9 +97,9 @@ namespace GOH
         {
             for (int j = 0; j < m_pinned_nodes.Count; j++)
             {
-                if (!Helpers.IsContained(visibility_triangle[0], visibility_triangle[1], visibility_triangle[2], m_pinned_nodes[j]))
+                if (!Helpers.IsContained(m_visibility_triangle[0], m_visibility_triangle[1], m_visibility_triangle[2], m_pinned_nodes[j]))
                     continue;
-                Vector2 guard_pos = visibility_triangle[0].position;
+                Vector2 guard_pos = m_visibility_triangle[0].position;
                 Vector2 o_node_pos = m_pinned_nodes[j].position;
                 float distance = float.PositiveInfinity;
                 float o_node_distance = (o_node_pos - guard_pos).magnitude;
@@ -109,7 +109,7 @@ namespace GOH
                 {
                     if (m_pinned_nodes[j].IsNeighbor(m_wall_edges[i]))
                         continue;
-                    Vector2 point = Helpers.InterceptPoint(m_wall_edges[i], visibility_triangle[0], m_pinned_nodes[j]);
+                    Vector2 point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[0], m_pinned_nodes[j]);
                     if (distance > (point - guard_pos).magnitude)
                     {
                         closest_edge = m_wall_edges[i];
@@ -137,15 +137,15 @@ namespace GOH
         //------------------------------2.6 start
         private void CastCornerShadowNodes()
         {
-            float left_distance = Helpers.Distance(visibility_triangle[1], visibility_triangle[0]);
-            Vector2 guard_position = visibility_triangle[0].position;
-            Node closest_left = visibility_triangle[1];
+            float left_distance = Helpers.Distance(m_visibility_triangle[1], m_visibility_triangle[0]);
+            Vector2 guard_position = m_visibility_triangle[0].position;
+            Node closest_left = m_visibility_triangle[1];
             List<Edge> new_edges = new List<Edge>();
             for (int i = 0; i < m_wall_edges.Count; i++)
             {
-                if (Helpers.HasIntersect(m_wall_edges[i], visibility_triangle[1], visibility_triangle[0]))
+                if (Helpers.HasIntersect(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[0]))
                 {
-                    Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], visibility_triangle[1], visibility_triangle[0]);
+                    Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[0]);
                     Node dummy = new Node(inter_point, Node.NodeType.leg, pip.timestamp, 0);
                     new_edges.AddRange(m_wall_edges[i].Split(dummy));
                     m_wall_edges.RemoveAt(i);
@@ -159,15 +159,15 @@ namespace GOH
             }
             m_wall_edges.AddRange(new_edges);
             new_edges.Clear();
-            new Edge(closest_left, visibility_triangle[0]);
+            new Edge(closest_left, m_visibility_triangle[0]);
 
-            float right_distance = Helpers.Distance(visibility_triangle[2], visibility_triangle[0]);
-            Node closest_right = visibility_triangle[2];
+            float right_distance = Helpers.Distance(m_visibility_triangle[2], m_visibility_triangle[0]);
+            Node closest_right = m_visibility_triangle[2];
             for (int i = 0; i < m_wall_edges.Count; i++)
             {
-                if (Helpers.HasIntersect(m_wall_edges[i], visibility_triangle[2], visibility_triangle[0]))
+                if (Helpers.HasIntersect(m_wall_edges[i], m_visibility_triangle[2], m_visibility_triangle[0]))
                 {
-                    Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], visibility_triangle[2], visibility_triangle[0]);
+                    Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[2], m_visibility_triangle[0]);
                     Node dummy = new Node(inter_point, Node.NodeType.leg, pip.timestamp, 1);
                     new_edges.AddRange(m_wall_edges[i].Split(dummy));
                     m_wall_edges.RemoveAt(i);
@@ -181,18 +181,18 @@ namespace GOH
             }
             m_wall_edges.AddRange(new_edges);
             new_edges.Clear();
-            new Edge(closest_right, visibility_triangle[0]);
+            new Edge(closest_right, m_visibility_triangle[0]);
         }
         //------------------------------2.6 end
         //------------------------------2.7 start
         private void GenerateVisibilityArea()
         {
-            Edge previous_edge = visibility_triangle[0].neightbour_edges[0];
-            Node current = visibility_triangle[0].GetNeighborNode(0);
+            Edge previous_edge = m_visibility_triangle[0].neightbour_edges[0];
+            Node current = m_visibility_triangle[0].GetNeighborNode(0);
             Node next;
-            vis_graph.Add(visibility_triangle[0]);
+            vis_graph.Add(m_visibility_triangle[0]);
             vis_graph.Add(current);
-            while (current != visibility_triangle[0])
+            while (current != m_visibility_triangle[0])
             {
                 next = null;
                 float min = float.PositiveInfinity;
@@ -208,7 +208,7 @@ namespace GOH
                 }
                 if (next == null)
                     throw new Exception("Invalid polygon. ");
-                if (next != visibility_triangle[0])
+                if (next != m_visibility_triangle[0])
                 {
                     vis_graph.Add(next);
                 }
@@ -223,7 +223,7 @@ namespace GOH
         {
             for (int i = m_pinned_nodes.Count - 1; i >= 0; i--)
             {
-                if (Helpers.IsContained(visibility_triangle[0], visibility_triangle[1], visibility_triangle[2], m_pinned_nodes[i]))
+                if (Helpers.IsContained(m_visibility_triangle[0], m_visibility_triangle[1], m_visibility_triangle[2], m_pinned_nodes[i]))
                     continue;
                 for (int j = m_pinned_nodes[i].GetNeighborCount() - 1; j >= 0; j--)
                 {
