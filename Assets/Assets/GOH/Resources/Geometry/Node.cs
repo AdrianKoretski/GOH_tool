@@ -22,7 +22,6 @@ namespace GOH
         public readonly Vector2 position;
         public readonly float timestamp;
 
-        public List<Edge> neighbour_edges = new List<Edge>();
         public List<Node> neighbours = new List<Node>();
 
         public Node(Vector2 position, NodeType type, float timestamp = -1, int ID_0 = -1, int ID_1 = -1)
@@ -60,23 +59,9 @@ namespace GOH
                 || node_0.type == NodeType.pinned && node_1.type == NodeType.obstacle;
         }
 
-        public void RemoveConnection(Edge edge)
-        {
-            if (!neighbour_edges.Remove(edge))
-                UnityEngine.Debug.LogError("[ TODO: ERROR MESSAGE ]");  // TODO: Write a proper error message. 
-        }
-
         public void RemoveConnection(Node node)
         {
             neighbours.Remove(node);
-        }
-
-        public void AddConnection(Edge edge)
-        {
-            if (!neighbour_edges.Contains(edge))
-                neighbour_edges.Add(edge);
-            else
-                UnityEngine.Debug.LogError("[ TODO: ERROR MESSAGE ]");  // TODO: Write a proper error message. 
         }
 
         public void AddConnection(Node node)
@@ -91,20 +76,12 @@ namespace GOH
 
         public int GetNeighborCount()
         {
-            return neighbour_edges.Count;
+            return neighbours.Count;
         }
 
         public Node GetNeighborNode(int index)
         {
-            return neighbour_edges[index].GetOtherNode(this);
-        }
-
-        public Edge GetNeighborEdge(Node v)
-        {
-            for (int i = 0; i < neighbour_edges.Count; i++)
-                if (neighbour_edges[i].Connects(v))
-                    return neighbour_edges[i];
-            return null;
+            return neighbours[index];
         }
 
         public Node CopyToPinned(float timestamp)

@@ -13,8 +13,6 @@ namespace GOH
         {
             m_node_0 = node_0;
             m_node_1 = node_1;
-            m_node_0.AddConnection(this);
-            m_node_1.AddConnection(this);
 
             m_node_0.AddConnection(m_node_1);
             m_node_1.AddConnection(m_node_0);
@@ -29,9 +27,6 @@ namespace GOH
             m_node_0.RemoveConnection(m_node_1);
             m_node_1.RemoveConnection(m_node_0);
 
-            m_node_0.RemoveConnection(this);
-            m_node_1.RemoveConnection(this);
-
             return edges;
         }
 
@@ -39,9 +34,6 @@ namespace GOH
         {
             m_node_0.RemoveConnection(m_node_1);
             m_node_1.RemoveConnection(m_node_0);
-
-            m_node_0.RemoveConnection(this);
-            m_node_1.RemoveConnection(this);
         }
 
         public Node GetOtherNode(Node node)
