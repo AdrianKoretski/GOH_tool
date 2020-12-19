@@ -107,7 +107,7 @@ namespace GOH
                 Vector2 closest_point = new Vector2();
                 for (int i = 0; i < m_wall_edges.Count; i++)
                 {
-                    if (m_pinned_nodes[j].IsNeighbor(m_wall_edges[i]))
+                    if (m_wall_edges[i].Connects(m_pinned_nodes[j]))
                         continue;
                     Vector2 point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[0], m_pinned_nodes[j]);
                     if (distance > (point - guard_pos).magnitude)
@@ -227,14 +227,21 @@ namespace GOH
                     continue;
                 for (int j = m_pinned_nodes[i].GetNeighborCount() - 1; j >= 0; j--)
                 {
-
-                    Edge neighbor = m_pinned_nodes[i].neighbour_edges[j];
+                    Edge neighbor = FindEdge(m_pinned_nodes[i], m_pinned_nodes[i].neighbours[j]);
                     m_wall_edges.Remove(neighbor);
                     neighbor.Destroy();
                 }
                 //Destroy(m_p_nodes[i].gameObject);
                 m_pinned_nodes.RemoveAt(i);
             }
+        }
+
+        Edge FindEdge(Node node_0, Node node_1)
+        {
+            foreach (Edge edge in m_wall_edges)
+                if (edge.Connects(node_0) && edge.Connects(node_1))
+                    return edge;
+            return null;
         }
 
         //------------------------------Cleanup end

@@ -15,6 +15,9 @@ namespace GOH
             m_node_1 = node_1;
             m_node_0.AddConnection(this);
             m_node_1.AddConnection(this);
+
+            m_node_0.AddConnection(m_node_1);
+            m_node_1.AddConnection(m_node_0);
         }
 
         public Edge[] Split(Node node)

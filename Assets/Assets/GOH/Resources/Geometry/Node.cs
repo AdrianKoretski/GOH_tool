@@ -74,25 +74,19 @@ namespace GOH
         public void AddConnection(Edge edge)
         {
             if (!neighbour_edges.Contains(edge))
-            {
                 neighbour_edges.Add(edge);
-                neighbours.Add(edge.GetOtherNode(this));
-            }
             else
                 UnityEngine.Debug.LogError("[ TODO: ERROR MESSAGE ]");  // TODO: Write a proper error message. 
         }
 
-        public bool IsNeighbor(Node node)
+        public void AddConnection(Node node)
         {
-            for (int i = 0; i < neighbour_edges.Count; i++)
-                if (neighbour_edges[i].Connects(node))
-                    return true;
-            return false;
+            neighbours.Add(node);
         }
 
-        public bool IsNeighbor(Edge edge)
+        public bool IsNeighbor(Node node)
         {
-            return neighbour_edges.Contains(edge);
+            return neighbours.Contains(node);
         }
 
         public int GetNeighborCount()
