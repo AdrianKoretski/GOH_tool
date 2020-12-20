@@ -62,6 +62,7 @@ namespace GOH
 
         //------------------------------3.2.3 end
         //------------------------------3.2.4 start
+
         private void GenerateTriangleBase(List<Node> i_nodes)
         {
             Node prev = m_visibility_triangle[1];
@@ -73,26 +74,32 @@ namespace GOH
                 prev = next;
                 i_nodes.Remove(next);
             }
-            Edge e = new Edge(prev, m_visibility_triangle[2]);
-            m_wall_edges.Add(e);
+            m_wall_edges.Add(new Edge(prev, m_visibility_triangle[2]));
             Cleaup();
         }
 
-        private Node GetClosestInterceptNode(Vector2 position, List<Node> i_nodes)
+        private Node GetClosestInterceptNode(Vector2 position, List<Node> intercept_nodes)
         {
             Node closest_node = null;
             float distance = float.PositiveInfinity;
-            for (int i = 0; i < i_nodes.Count; i++)
+            foreach (Node node in intercept_nodes.Where( n => distance > Vector2.Distance(n.position, position)))
             {
-                Vector2 current_position = i_nodes[i].position;
-                if (distance > Vector2.Distance(current_position, position))
-                {
-                    closest_node = i_nodes[i];
-                    distance = Vector2.Distance(current_position, position);
-                }
+                closest_node = node;
+                distance = Vector2.Distance(node.position, position);
             }
             return closest_node;
         }
+
+        private void Cleaup()
+        {
+            foreach (Node pinned_node in m_pinned_nodes.Where(n => !Helpers.IsContained(m_visibility_triangle, n)))
+            {
+                m_wall_edges.RemoveAll((Edge e) => { return e.Connects(pinned_node); });
+                Node.DisconnectAll(pinned_node);
+            }
+            m_pinned_nodes.RemoveAll((Node n) => { return !Helpers.IsContained(m_visibility_triangle, n); });
+        }
+
         //------------------------------3.2.4 end
         //------------------------------3.2.5 start
 
@@ -220,22 +227,6 @@ namespace GOH
             }
         }
         //------------------------------3.2.7 end
-        //------------------------------Cleanup start
-
-        private void Cleaup()
-        {
-            foreach (Node pinned_node in m_pinned_nodes)
-            {
-                if (!Helpers.IsContained(m_visibility_triangle, pinned_node))
-                {
-                    m_wall_edges.RemoveAll((Edge e) => { return e.Connects(pinned_node); });
-                    Node.DisconnectAll(pinned_node);
-                }
-            }
-            m_pinned_nodes.RemoveAll((Node n) => { return !Helpers.IsContained(m_visibility_triangle, n); });
-        }
-
-        //------------------------------Cleanup end
 
         public void GetVisibilityArea(out Vector3[] vertices, out int[] indices)
         {
