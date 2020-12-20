@@ -105,44 +105,49 @@ namespace GOH
 
         private void CastObjectShadows()
         {
-            for (int j = 0; j < m_pinned_nodes.Count; j++)
+            Vector2 guard_pos = m_visibility_triangle[0].position;
+            float distance;
+            Edge closest_edge;
+            Vector2 closest_point;
+            foreach (Node pinned_node in m_pinned_nodes.Where(node => Helpers.IsContained(m_visibility_triangle, node)))
             {
-                if (!Helpers.IsContained(m_visibility_triangle, m_pinned_nodes[j]))
-                    continue;
-                Vector2 guard_pos = m_visibility_triangle[0].position;
-                Vector2 o_node_pos = m_pinned_nodes[j].position;
-                float distance = float.PositiveInfinity;
-                float o_node_distance = (o_node_pos - guard_pos).magnitude;
-                Edge closest_edge = null;
-                Vector2 closest_point = new Vector2();
-                for (int i = 0; i < m_wall_edges.Count; i++)
+                distance = float.PositiveInfinity;
+                closest_edge = null;
+                closest_point = new Vector2();
+                foreach (Edge edge in m_wall_edges.Where(edge => ShadowCriteria(edge, pinned_node, distance, out distance)))
                 {
-                    if (m_wall_edges[i].Connects(m_pinned_nodes[j]))
-                        continue;
-                    Vector2 point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[0], m_pinned_nodes[j]);
-                    if (distance > (point - guard_pos).magnitude)
-                    {
-                        closest_edge = m_wall_edges[i];
-                        distance = (point - guard_pos).magnitude;
-                        closest_point = point;
-                        if (distance < o_node_distance)
-                        {
-                            distance = float.PositiveInfinity;
-                            break;
-                        }
-                    }
+                    closest_point = Helpers.InterceptPoint(edge, m_visibility_triangle[0], pinned_node); ;
+                    closest_edge = edge;
                 }
-                if (distance != float.PositiveInfinity)
+                if (distance != float.PositiveInfinity && distance != float.NegativeInfinity)
                 {
-                    Node node = new Node(closest_point, Node.NodeType.shadow, pip.timestamp, m_pinned_nodes[j].ID_0);
-                    Node.Connect(m_pinned_nodes[j], node);
-
+                    Node node = new Node(closest_point, Node.NodeType.shadow, pip.timestamp, pinned_node.ID_0);
+                    Node.Connect(pinned_node, node);
                     m_wall_edges.Remove(closest_edge);
-                    Edge[] splits = closest_edge.Split(node);
-                    m_wall_edges.AddRange(splits);
+                    m_wall_edges.AddRange(closest_edge.Split(node));
                 }
             }
         }
+
+        private bool ShadowCriteria(Edge edge, Node node, float distance_in, out float distance_out)
+        {
+            float dist = (Helpers.InterceptPoint(edge, m_visibility_triangle[0], node) - m_visibility_triangle[0].position).magnitude;
+            bool result = !edge.Connects(node) && distance_in > dist;
+
+            // Handles cases where there is an obstruction between the node and the guard. 
+            if (dist < (node.position - m_visibility_triangle[0].position).magnitude)
+            {
+                dist = float.NegativeInfinity;
+                result = true;
+            }
+
+            if (result)
+                distance_out = dist;
+            else
+                distance_out = distance_in;
+            return result;
+        }
+
         //------------------------------3.2.5 end
         //------------------------------3.2.6 start
         private void CastCornerShadowNodes()
