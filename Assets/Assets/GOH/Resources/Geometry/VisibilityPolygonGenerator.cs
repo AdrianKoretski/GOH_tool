@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace GOH
@@ -22,7 +23,7 @@ namespace GOH
             m_max_reattempts = settings.MaxReAttempts;
         }
 
-        //------------------------------2.0 start
+        //------------------------------3.2 start
 
         public VisibilityPolygon GetVisibilityPolygon(Pip pip)
         {
@@ -71,8 +72,8 @@ namespace GOH
             return GenerateVisibilityPolygon(delta_pip);
         }
 
-        //------------------------------2.0 end
-        //------------------------------2.1 start
+        //------------------------------3.2 end
+        //------------------------------3.2.1 start
 
         Vector2[] GenerateVisibilityTriangle(Pip path_position)
         {
@@ -85,16 +86,20 @@ namespace GOH
             return visibility_triangle;
         }
 
-        //------------------------------2.1 end
-        //------------------------------2.2-nodes start
+        //------------------------------3.2.1 end
+        //------------------------------3.2.2-nodes start
 
         private List<Node> GenerateObstacleVertices(Vector2[] visibility_triangle, float timestamp)
         {
             List<Node> obstacle_nodes = new List<Node>();
-            foreach (Node node in m_terrain_nodes)
-                if (Helpers.IsContained(visibility_triangle, node.position) || HasEdgeCrossingTriangle(visibility_triangle, node))
-                    obstacle_nodes.Add(node.CopyToPinned(timestamp));
+            foreach (Node node in m_terrain_nodes.Where(n => TriangleCondition(visibility_triangle, n)))
+                obstacle_nodes.Add(node.CopyToPinned(timestamp));
             return obstacle_nodes;
+        }
+
+        private bool TriangleCondition(Vector2[] visibility_triangle, Node node)
+        {
+            return Helpers.IsContained(visibility_triangle, node) || HasEdgeCrossingTriangle(visibility_triangle, node);
         }
 
         private bool HasEdgeCrossingTriangle(Vector2[] visibility_triangle, Node node)
@@ -106,8 +111,8 @@ namespace GOH
             return false;
         }
 
-        //------------------------------2.2-nodes end
-        //------------------------------2.2-edges start
+        //------------------------------3.2.2-nodes end
+        //------------------------------3.2.2-edges start
 
         private List<Edge> GenerateObstacleEdges(List<Node> node_list)
         {
@@ -133,8 +138,8 @@ namespace GOH
             return null;
         }
 
-        //------------------------------2.2-edges end
-        //------------------------------3.2 start
+        //------------------------------3.2.2-edges end
+        //------------------------------3.3.2 start
 
         public List<VisibilityPolygon> GenerteIntermediatePolygons(VisibilityPolygon poly_0, VisibilityPolygon poly_1)
         {
@@ -167,6 +172,6 @@ namespace GOH
                 polys.Add(A);
             return polys;
         }
-        //------------------------------3.2 end
+        //------------------------------3.3.2 end
     }
 }
