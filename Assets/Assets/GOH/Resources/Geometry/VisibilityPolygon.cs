@@ -10,7 +10,7 @@ namespace GOH
         private Node[] m_visibility_triangle = new Node[3];
         private List<Node> m_pinned_nodes = new List<Node>();
         private List<Edge> m_wall_edges = new List<Edge>();
-        private List<Node> vis_graph = new List<Node>();
+        public List<Node> visibility_graph { get; private set; } = new List<Node>();
 
         //------------------------------Setup start
 
@@ -29,16 +29,16 @@ namespace GOH
 
         private void GeneratePolygon()
         {
-            List<Node> i_nodes = GenerateInterceptNodes();      // 2.3
-            List<Edge> back = GenerateTriangleBase(i_nodes);    // 2.4
-            CastCornerShadowNodes();                            // 2.6
+            List<Node> i_nodes = GenerateInterceptNodes();      // 3.2.3
+            List<Edge> back = GenerateTriangleBase(i_nodes);    // 3.2.4
+            CastCornerShadowNodes();                            // 3.2.6
             m_wall_edges.AddRange(back);
             Cleaup();
-            CastObjectShadows();                                // 2.5
-            GenerateVisibilityArea();                           // 2.7
+            CastObjectShadows();                                // 3.2.5
+            GenerateVisibilityArea();                           // 3.2.7
         }
 
-        //------------------------------2.3 start
+        //------------------------------3.2.3 start
         private List<Node> GenerateInterceptNodes()
         {
             List<Node> i_nodes = new List<Node>();
@@ -56,8 +56,8 @@ namespace GOH
             }
             return i_nodes;
         }
-        //------------------------------2.3 end
-        //------------------------------2.4 start
+        //------------------------------3.2.3 end
+        //------------------------------3.2.4 start
         private List<Edge> GenerateTriangleBase(List<Node> i_nodes)
         {
             List<Edge> back = new List<Edge>();
@@ -90,8 +90,8 @@ namespace GOH
             }
             return closest_node;
         }
-        //------------------------------2.4 end
-        //------------------------------2.5 start
+        //------------------------------3.2.4 end
+        //------------------------------3.2.5 start
 
         private void CastObjectShadows()
         {
@@ -133,8 +133,8 @@ namespace GOH
                 }
             }
         }
-        //------------------------------2.5 end
-        //------------------------------2.6 start
+        //------------------------------3.2.5 end
+        //------------------------------3.2.6 start
         private void CastCornerShadowNodes()
         {
             float left_distance = Helpers.Distance(m_visibility_triangle[1], m_visibility_triangle[0]);
@@ -183,15 +183,15 @@ namespace GOH
             new_edges.Clear();
             Node.Connect(closest_right, m_visibility_triangle[0]);
         }
-        //------------------------------2.6 end
-        //------------------------------2.7 start
+        //------------------------------3.2.6 end
+        //------------------------------3.2.7 start
         private void GenerateVisibilityArea()
         {
             Node previous = m_visibility_triangle[0];
             Node current = m_visibility_triangle[0].neighbours[0];
             Node next;
-            vis_graph.Add(m_visibility_triangle[0]);
-            vis_graph.Add(current);
+            visibility_graph.Add(m_visibility_triangle[0]);
+            visibility_graph.Add(current);
             while (current != m_visibility_triangle[0])
             {
                 next = null;
@@ -210,13 +210,13 @@ namespace GOH
                     throw new Exception("Invalid polygon. ");
                 if (next != m_visibility_triangle[0])
                 {
-                    vis_graph.Add(next);
+                    visibility_graph.Add(next);
                 }
                 previous = current;
                 current = next;
             }
         }
-        //------------------------------2.7 end
+        //------------------------------3.2.7 end
         //------------------------------Cleanup start
 
         private void Cleaup()
@@ -239,16 +239,16 @@ namespace GOH
             List<Vector3> triangle_corners = new List<Vector3>();
             List<int> triangle_indices = new List<int>();
 
-            for (int i = 0; i < vis_graph.Count; i++)
+            for (int i = 0; i < visibility_graph.Count; i++)
             {
-                Vector3 temp = vis_graph[i].position;
+                Vector3 temp = visibility_graph[i].position;
                 temp.z = 0.25f;
                 triangle_corners.Add(temp);
             }
 
-            for (int i = 1; i < vis_graph.Count - 1; i++)
+            for (int i = 1; i < visibility_graph.Count - 1; i++)
             {
-                if (vis_graph[i] == vis_graph[i + 1])
+                if (visibility_graph[i] == visibility_graph[i + 1])
                     continue;
                 triangle_indices.Add(0);
                 triangle_indices.Add(i);
@@ -258,54 +258,44 @@ namespace GOH
             indices = triangle_indices.ToArray();
         }
 
-        public int Count()
+        public static bool Compare(VisibilityPolygon vp_0, VisibilityPolygon vp_1)
         {
-            return vis_graph.Count;
-        }
-
-        public Node Last()
-        {
-            return vis_graph[vis_graph.Count - 1];
-        }
-
-        public Node First()
-        {
-            return vis_graph[0];
-        }
-
-        public Node At(int index)
-        {
-            return vis_graph[index];
-        }
-
-        public int IndexOf(Node n)
-        {
-            return vis_graph.IndexOf(n);
-        }
-
-        public bool Compare(VisibilityPolygon vp)
-        {
-            if (vis_graph.Count != vp.vis_graph.Count)
+            if (vp_0.visibility_graph.Count != vp_1.visibility_graph.Count)
                 return false;
-            for (int i = 0; i < vis_graph.Count; i++)
-                if (!Node.Compare(vp.vis_graph[i], vis_graph[i]))
+            for (int i = 0; i < vp_0.visibility_graph.Count; i++)
+                if (!Node.Compare(vp_0.visibility_graph[i], vp_1.visibility_graph[i]))
                     return false;
             return true;
         }
 
-        public Pip GetPathPip()
+        public int Count()
         {
-            return pip;
+            return visibility_graph.Count;
         }
 
-        public float GetTimestamp()
+        public Node Last()
+        {
+            return visibility_graph[visibility_graph.Count - 1];
+        }
+
+        public Node First()
+        {
+            return visibility_graph[0];
+        }
+
+        public Node At(int index)
+        {
+            return visibility_graph[index];
+        }
+
+        public int IndexOf(Node n)
+        {
+            return visibility_graph.IndexOf(n);
+        }
+
+        public float Timestamp()
         {
             return pip.timestamp;
-        }
-
-        public List<Node> GetVisibilityArea()
-        {
-            return vis_graph;
         }
     }
 }

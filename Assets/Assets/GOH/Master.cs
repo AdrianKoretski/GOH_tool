@@ -43,15 +43,15 @@ namespace GOH
 
         private void AddPolygon(VisibilityPolygon vis)
         {
-            if (m_path_index != 0 && !vis.Compare(vis_polys[vis_polys.Count - 1]))
+            if (m_path_index != 0 && !VisibilityPolygon.Compare(vis, vis_polys[vis_polys.Count - 1]))
             {
                 List<VisibilityPolygon> polys = vis_poly_gen.GenerteIntermediatePolygons(vis_polys[vis_polys.Count - 1], vis);
                 InsertIntermediatePolygons(polys);
             }
             vis_polys.Add(vis);
-            PolygonVisualiser.instance.CreatePolygon(vis.GetTimestamp());
+            PolygonVisualiser.instance.CreatePolygon(vis.Timestamp());
             vis.GetVisibilityArea(out Vector3[] v, out int[] tni);
-            PolygonVisualiser.instance.AddMesh(v, tni, vis.GetTimestamp());
+            PolygonVisualiser.instance.AddMesh(v, tni, vis.Timestamp());
 
             visibility_manifold.addArea(vis);
             if (m_path_index == m_path.Count - 1)
@@ -62,10 +62,10 @@ namespace GOH
         {
             for (int i = 0; i < polys.Count; i++)
             {
-                PolygonVisualiser.instance.CreatePolygon(polys[i].GetTimestamp());
+                PolygonVisualiser.instance.CreatePolygon(polys[i].Timestamp());
                 polys[i].GetVisibilityArea(out Vector3[] v, out int[] tni);
-                PolygonVisualiser.instance.AddMesh(v, tni, polys[i].GetTimestamp());
-                m_path.Insert(m_path_index, polys[i].GetPathPip());
+                PolygonVisualiser.instance.AddMesh(v, tni, polys[i].Timestamp());
+                m_path.Insert(m_path_index, polys[i].pip);
                 vis_polys.Add(polys[i]);
                 visibility_manifold.addArea(polys[i]);
                 m_path_index++;

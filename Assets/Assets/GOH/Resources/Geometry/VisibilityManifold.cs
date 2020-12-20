@@ -40,18 +40,18 @@ namespace GOH
 
         public void addArea(VisibilityPolygon vp)
         {
-            List<Node> vp_graph = vp.GetVisibilityArea();
+            List<Node> vp_graph = vp.visibility_graph;
 
             m_vis_polys.Add(vp);
             setManifoldIDs(vp_graph);
 
             saveNodeObj(vp_graph);
-            GameObject new_layer = SimplifiedGraphVisualiser.instance.AddLayer(vp.GetTimestamp());
+            GameObject new_layer = SimplifiedGraphVisualiser.instance.AddLayer(vp.Timestamp());
             addLayerVisuals(vp_graph, new_layer.transform);
 
             if (layer_count() != 1)
-                if (vp.Compare(second_last()))
-                    connectSame(vp.GetTimestamp());
+                if (VisibilityPolygon.Compare(vp, second_last()))
+                    connectSame(vp.Timestamp());
                 else
                     connectDifferent();
             else
@@ -121,8 +121,8 @@ namespace GOH
 
             connectSimilarNodes(layer_0, layer_1);
 
-            List<Node> single_nodes_0 = getUnconnectedNodes(layer_0, layer_1.GetTimestamp());
-            List<Node> single_nodes_1 = getUnconnectedNodes(layer_1, layer_0.GetTimestamp());
+            List<Node> single_nodes_0 = getUnconnectedNodes(layer_0, layer_1.Timestamp());
+            List<Node> single_nodes_1 = getUnconnectedNodes(layer_1, layer_0.Timestamp());
 
             List<ClosePair> closest_0 = generateClosestNodePairs(single_nodes_0, layer_0, layer_1);
             List<ClosePair> closest_1 = generateClosestNodePairs(single_nodes_1, layer_1, layer_0);
@@ -154,12 +154,12 @@ namespace GOH
                 }
                 int index_of_0 = layer_0.IndexOf(closest.bottom);
                 int index_of_1 = layer_1.IndexOf(closest.top);
-                connectNodeTime(index_of_0, index_of_1, layer_1.GetTimestamp());
+                connectNodeTime(index_of_0, index_of_1, layer_1.Timestamp());
                 closest_0.Remove(closest);
                 closest_1.Remove(closest);
             }
             triangulate(layer_0, layer_1);
-            connectDangler(layer_1.GetTimestamp());
+            connectDangler(layer_1.Timestamp());
         }
 
         List<ClosePair> generateClosestNodePairs(List<Node> single_nodes, VisibilityPolygon single_layer, VisibilityPolygon other_layer)
@@ -180,7 +180,7 @@ namespace GOH
             for (int i = 0; i < layer_0.Count(); i++)
                 for (int j = 0; j < layer_1.Count(); j++)
                     if (Node.Compare(layer_1.At(j), layer_0.At(i)))
-                        connectNodeTime(i, j, layer_0.GetTimestamp());
+                        connectNodeTime(i, j, layer_0.Timestamp());
         }
 
         private Node getClosest(Node node_1, VisibilityPolygon layer_0, VisibilityPolygon layer_1)
@@ -254,16 +254,16 @@ namespace GOH
                         break;
                     }
                     if (src_index != source.Count() - 1)
-                        connectNodeTime(src_index + 1, dst_index, dest.GetTimestamp());
+                        connectNodeTime(src_index + 1, dst_index, dest.Timestamp());
                     else if (dst_index != dest.Count() - 1)
-                        connectNodeTime(src_index, dst_index + 1, dest.GetTimestamp());
+                        connectNodeTime(src_index, dst_index + 1, dest.Timestamp());
                 }
             }
         }
 
         public void cap()
         {
-            List<Node> vp_copy = new List<Node>(last().GetVisibilityArea());
+            List<Node> vp_copy = new List<Node>(last().visibility_graph);
             Node origin = vp_copy[0];
             vp_copy.RemoveAt(0);
             for (int i = 0; i < vp_copy.Count - 2; i++)
