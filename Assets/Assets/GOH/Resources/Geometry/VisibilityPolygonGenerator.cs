@@ -119,7 +119,7 @@ namespace GOH
             List<Edge> edge_list = new List<Edge>();
             foreach (Node node_0 in node_list)
                 foreach (Node node_1 in node_list)
-                    if (m_terrain_nodes[node_0.ID_0].IsNeighbor(m_terrain_nodes[node_1.ID_0]))
+                    if (!(node_0).IsNeighbor(node_1) && m_terrain_nodes[node_0.ID_0].IsNeighbor(m_terrain_nodes[node_1.ID_0]))
                         edge_list.Add(new Edge(node_0, node_1));
             return edge_list;
         }
