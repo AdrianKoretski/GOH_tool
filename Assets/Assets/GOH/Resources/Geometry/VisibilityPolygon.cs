@@ -10,7 +10,7 @@ namespace GOH
         private Node[] m_visibility_triangle = new Node[3];
         private List<Node> m_pinned_nodes = new List<Node>();
         private List<Edge> m_wall_edges = new List<Edge>();
-        public List<Node> visibility_graph { get; private set; } = new List<Node>();
+        public List<Node> visibility_graph = new List<Node>();
 
         //------------------------------Setup start
 
@@ -30,10 +30,8 @@ namespace GOH
         private void GeneratePolygon()
         {
             List<Node> i_nodes = GenerateInterceptNodes();      // 3.2.3
-            List<Edge> back = GenerateTriangleBase(i_nodes);    // 3.2.4
             CastCornerShadowNodes();                            // 3.2.6
-            m_wall_edges.AddRange(back);
-            Cleaup();
+            GenerateTriangleBase(i_nodes);                      // 3.2.4
             CastObjectShadows();                                // 3.2.5
             GenerateVisibilityArea();                           // 3.2.7
         }
@@ -58,21 +56,20 @@ namespace GOH
         }
         //------------------------------3.2.3 end
         //------------------------------3.2.4 start
-        private List<Edge> GenerateTriangleBase(List<Node> i_nodes)
+        private void GenerateTriangleBase(List<Node> i_nodes)
         {
-            List<Edge> back = new List<Edge>();
             Node prev = m_visibility_triangle[1];
             while (i_nodes.Count != 0)
             {
                 Node next = GetClosestInterceptNode(prev.position, i_nodes);
                 Edge edge = new Edge(prev, next);
-                back.Add(edge);
+                m_wall_edges.Add(edge);
                 prev = next;
                 i_nodes.Remove(next);
             }
             Edge e = new Edge(prev, m_visibility_triangle[2]);
-            back.Add(e);
-            return back;
+            m_wall_edges.Add(e);
+            Cleaup();
         }
 
         private Node GetClosestInterceptNode(Vector2 position, List<Node> i_nodes)
