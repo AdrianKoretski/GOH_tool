@@ -132,9 +132,12 @@ namespace GOH
             List<VisibilityPolygon> polys = new List<VisibilityPolygon>();
             if (poly_1.GetTimestamp() - poly_0.GetTimestamp() <= m_threshold)
                 return polys;
-            polys.AddRange(GenerateVisibilityPair(poly_0, poly_1));
-            while (!polys[polys.Count - 1].Compare(poly_1) && poly_1.GetTimestamp() - polys[polys.Count - 1].GetTimestamp() > m_threshold)
-                polys.AddRange(GenerateVisibilityPair(polys[polys.Count - 1], poly_1));
+            VisibilityPolygon top_poly = poly_0;
+            do
+            {
+                polys.AddRange(GenerateVisibilityPair(top_poly, poly_1));
+                top_poly = polys[polys.Count - 1];
+            } while (!top_poly.Compare(poly_1) && poly_1.GetTimestamp() - top_poly.GetTimestamp() > m_threshold);
             return polys;
         }
 
