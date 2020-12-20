@@ -117,25 +117,11 @@ namespace GOH
         private List<Edge> GenerateObstacleEdges(List<Node> node_list)
         {
             List<Edge> edge_list = new List<Edge>();
-            foreach (Node node in node_list)
-            {
-                Node p_node = m_terrain_nodes[node.ID_0];
-                foreach (Node p_node_neighbour in p_node.neighbours)
-                {
-                    Node neighbor = FindNodeCopy(p_node_neighbour, node_list);
-                    if (neighbor != null && !node.IsNeighbor(neighbor))
-                        edge_list.Add(new Edge(node, neighbor));
-                }
-            }
+            foreach (Node node_0 in node_list)
+                foreach (Node node_1 in node_list)
+                    if (m_terrain_nodes[node_0.ID_0].IsNeighbor(m_terrain_nodes[node_1.ID_0]))
+                        edge_list.Add(new Edge(node_0, node_1));
             return edge_list;
-        }
-
-        private Node FindNodeCopy(Node node_copy, List<Node> node_list)
-        {
-            foreach (Node node in node_list)
-                if (Node.Compare(node, node_copy))
-                    return node;
-            return null;
         }
 
         //------------------------------3.2.2-edges end
