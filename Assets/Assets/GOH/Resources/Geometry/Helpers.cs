@@ -24,10 +24,8 @@ namespace GOH
             return 2 * Mathf.PI - angle;
         }
 
-        public static Vector2 InterceptPoint(Edge edge, Node node_0, Node node_1)
+        public static Vector2 InterceptPoint(Edge edge, Vector2 p_0, Vector2 p_1)
         {
-            Vector2 p_0 = node_0.position;
-            Vector2 p_1 = node_1.position;
             Vector2 q_0 = edge.node_0.position;
             Vector2 q_1 = edge.node_1.position;
             Vector2 r = p_1 - p_0;
@@ -39,6 +37,11 @@ namespace GOH
             if (t < 0 || u < 0 || u > 1)
                 return new Vector2(float.PositiveInfinity, float.PositiveInfinity);
             return p_0 + t * r;
+        }
+
+        public static Vector2 InterceptPoint(Edge edge, Node node_0, Node node_1)
+        {
+            return InterceptPoint(edge, node_0.position, node_1.position);
         }
 
         public static bool IsContained(Vector2 vector_0, Vector2 vector_1, Vector2 vector_2, Vector2 vector_p)

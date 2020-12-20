@@ -41,6 +41,8 @@ namespace GOH
             this.timestamp = timestamp;
         }
 
+        public Node(Vector2 position, NodeType type, Edge edge, float timestamp = -1) : this(position, type, timestamp, edge.node_0.ID_0, edge.node_1.ID_0) { }
+
         public static bool Compare(Node node_0, Node node_1)
         {
             return HaveSameIdentifiers(node_0, node_1) && HaveSameType(node_0, node_1);

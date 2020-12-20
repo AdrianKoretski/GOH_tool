@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace GOH
@@ -39,21 +40,26 @@ namespace GOH
         //------------------------------3.2.3 start
         private List<Node> GenerateInterceptNodes()
         {
-            List<Node> i_nodes = new List<Node>();
-            for (int i = m_wall_edges.Count - 1; i >= 0; i--)
+            List<Node> intercept_nodes = new List<Node>();
+            List<Edge> edges_to_remove = new List<Edge>();
+            List<Edge> edges_to_add = new List<Edge>();
+            Vector2 t1 = m_visibility_triangle[1].position;
+            Vector2 t2 = m_visibility_triangle[2].position;
+            foreach (Edge edge in m_wall_edges.Where(e => Helpers.HasIntersect(e, t1, t2)))
             {
-                if (Helpers.HasIntersect(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[2]))
-                {
-                    Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[2]);
-                    Node i_node = new Node(inter_point, Node.NodeType.intercept, pip.timestamp, m_wall_edges[i].node_0.ID_0, m_wall_edges[i].node_1.ID_0);
-                    i_nodes.Add(i_node);
-                    Edge[] splits = m_wall_edges[i].Split(i_node);
-                    m_wall_edges.AddRange(splits);
-                    m_wall_edges.RemoveAt(i);
-                }
+                Vector2 inter_point = Helpers.InterceptPoint(edge, t1, t2);
+                Node i_node = new Node(inter_point, Node.NodeType.intercept, edge, pip.timestamp);
+                intercept_nodes.Add(i_node);
+                edges_to_add.AddRange(edge.Split(i_node));
+                edges_to_remove.Add(edge);
             }
-            return i_nodes;
+
+            m_wall_edges = m_wall_edges.Except(edges_to_remove).ToList();
+            m_wall_edges.AddRange(edges_to_add);
+
+            return intercept_nodes;
         }
+
         //------------------------------3.2.3 end
         //------------------------------3.2.4 start
         private void GenerateTriangleBase(List<Node> i_nodes)
