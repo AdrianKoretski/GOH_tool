@@ -34,7 +34,14 @@ namespace GOH
             CastCornerShadowNodes();                            // 3.2.6
             GenerateTriangleBase(i_nodes);                      // 3.2.4
             CastObjectShadows();                                // 3.2.5
-            GenerateVisibilityArea();                           // 3.2.7
+            try
+            {
+                GenerateVisibilityArea();                       // 3.2.7
+            }
+            catch
+            {
+                throw new Exception("Invalid polygon. ");
+            }
         }
 
         //------------------------------3.2.3 start
@@ -200,36 +207,29 @@ namespace GOH
         }
         //------------------------------3.2.6 end
         //------------------------------3.2.7 start
+
         private void GenerateVisibilityArea()
         {
             Node previous = m_visibility_triangle[0];
             Node current = m_visibility_triangle[0].neighbours[0];
             Node next;
+            float min;
             visibility_graph.Add(m_visibility_triangle[0]);
             visibility_graph.Add(current);
             while (current != m_visibility_triangle[0])
             {
                 next = null;
-                float min = float.PositiveInfinity;
-                foreach (Node node_neighbour in current.neighbours)
+                min = float.PositiveInfinity;
+                foreach (Node node_neighbour in current.neighbours.Where(n => (n != previous) && min > Helpers.Angle(previous, current, n)))
                 {
-                    if (node_neighbour == previous)
-                        continue;
-                    if (min > Helpers.Angle(previous, current, node_neighbour))
-                    {
-                        min = Helpers.Angle(previous, current, node_neighbour);
-                        next = node_neighbour;
-                    }
+                    min = Helpers.Angle(previous, current, node_neighbour);
+                    next = node_neighbour;
                 }
-                if (next == null)
-                    throw new Exception("Invalid polygon. ");
-                if (next != m_visibility_triangle[0])
-                {
-                    visibility_graph.Add(next);
-                }
+                visibility_graph.Add(next);
                 previous = current;
                 current = next;
             }
+            visibility_graph.RemoveAt(visibility_graph.Count - 1);
         }
         //------------------------------3.2.7 end
 
