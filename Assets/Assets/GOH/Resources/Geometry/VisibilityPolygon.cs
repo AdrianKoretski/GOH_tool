@@ -8,17 +8,17 @@ namespace GOH
     public class VisibilityPolygon
     {
         public readonly Pip pip;
-        private Node[] m_visibility_triangle = new Node[3];
+        public List<Node> visibility_graph = new List<Node>();
+        private Node[] m_triangle = new Node[3];
         private List<Node> m_pinned_nodes = new List<Node>();
         private List<Edge> m_wall_edges = new List<Edge>();
-        public List<Node> visibility_graph = new List<Node>();
 
         //------------------------------Setup start
 
         public VisibilityPolygon(Vector2[] triangle_corners, Pip pip, List<Node> nodes, List<Edge> edges)
         {
             for (int i = 0; i < 3; i++)
-                m_visibility_triangle[i] = new Node(triangle_corners[i], i == 0 ? Node.NodeType.guard : Node.NodeType.leg, pip.timestamp, i);
+                m_triangle[i] = new Node(triangle_corners[i], i == 0 ? Node.NodeType.guard : Node.NodeType.leg, pip.timestamp, i);
             this.pip = pip;
             m_wall_edges = edges;
             m_pinned_nodes = nodes;
@@ -50,8 +50,8 @@ namespace GOH
             List<Node> intercept_nodes = new List<Node>();
             List<Edge> edges_to_remove = new List<Edge>();
             List<Edge> edges_to_add = new List<Edge>();
-            Vector2 t1 = m_visibility_triangle[1].position;
-            Vector2 t2 = m_visibility_triangle[2].position;
+            Vector2 t1 = m_triangle[1].position;
+            Vector2 t2 = m_triangle[2].position;
             foreach (Edge edge in m_wall_edges.Where(e => Helpers.HasIntersect(e, t1, t2)))
             {
                 Vector2 inter_point = Helpers.InterceptPoint(edge, t1, t2);
@@ -72,7 +72,7 @@ namespace GOH
 
         private void GenerateTriangleBase(List<Node> i_nodes)
         {
-            Node prev = m_visibility_triangle[1];
+            Node prev = m_triangle[1];
             while (i_nodes.Count != 0)
             {
                 Node next = GetClosestInterceptNode(prev.position, i_nodes);
@@ -81,7 +81,7 @@ namespace GOH
                 prev = next;
                 i_nodes.Remove(next);
             }
-            m_wall_edges.Add(new Edge(prev, m_visibility_triangle[2]));
+            m_wall_edges.Add(new Edge(prev, m_triangle[2]));
             Cleaup();
         }
 
@@ -99,12 +99,12 @@ namespace GOH
 
         private void Cleaup()
         {
-            foreach (Node pinned_node in m_pinned_nodes.Where(n => !Helpers.IsContained(m_visibility_triangle, n)))
+            foreach (Node pinned_node in m_pinned_nodes.Where(n => !Helpers.IsContained(m_triangle, n)))
             {
                 m_wall_edges.RemoveAll((Edge e) => { return e.Connects(pinned_node); });
                 Node.DisconnectAll(pinned_node);
             }
-            m_pinned_nodes.RemoveAll((Node n) => { return !Helpers.IsContained(m_visibility_triangle, n); });
+            m_pinned_nodes.RemoveAll((Node n) => { return !Helpers.IsContained(m_triangle, n); });
         }
 
         //------------------------------3.2.4 end
@@ -112,18 +112,18 @@ namespace GOH
 
         private void CastObjectShadows()
         {
-            Vector2 guard_pos = m_visibility_triangle[0].position;
+            Vector2 guard_pos = m_triangle[0].position;
             float distance;
             Edge closest_edge;
             Vector2 closest_point;
-            foreach (Node pinned_node in m_pinned_nodes.Where(node => Helpers.IsContained(m_visibility_triangle, node)))
+            foreach (Node pinned_node in m_pinned_nodes.Where(node => Helpers.IsContained(m_triangle, node)))
             {
                 distance = float.PositiveInfinity;
                 closest_edge = null;
                 closest_point = new Vector2();
                 foreach (Edge edge in m_wall_edges.Where(edge => ShadowCriteria(edge, pinned_node, distance, out distance)))
                 {
-                    closest_point = Helpers.InterceptPoint(edge, m_visibility_triangle[0], pinned_node); ;
+                    closest_point = Helpers.InterceptPoint(edge, m_triangle[0], pinned_node); ;
                     closest_edge = edge;
                 }
                 if (distance != float.PositiveInfinity && distance != float.NegativeInfinity)
@@ -138,11 +138,11 @@ namespace GOH
 
         private bool ShadowCriteria(Edge edge, Node node, float distance_in, out float distance_out)
         {
-            float dist = (Helpers.InterceptPoint(edge, m_visibility_triangle[0], node) - m_visibility_triangle[0].position).magnitude;
+            float dist = (Helpers.InterceptPoint(edge, m_triangle[0], node) - m_triangle[0].position).magnitude;
             bool result = !edge.Connects(node) && distance_in > dist;
 
             // Handles cases where there is an obstruction between the node and the guard. 
-            if (dist < (node.position - m_visibility_triangle[0].position).magnitude)
+            if (dist < (node.position - m_triangle[0].position).magnitude)
             {
                 dist = float.NegativeInfinity;
                 result = true;
@@ -159,64 +159,49 @@ namespace GOH
         //------------------------------3.2.6 start
         private void CastCornerShadowNodes()
         {
-            float left_distance = Helpers.Distance(m_visibility_triangle[1], m_visibility_triangle[0]);
-            Vector2 guard_position = m_visibility_triangle[0].position;
-            Node closest_left = m_visibility_triangle[1];
+            Vector2 guard_position = m_triangle[0].position;
             List<Edge> new_edges = new List<Edge>();
-            for (int i = 0; i < m_wall_edges.Count; i++)
-            {
-                if (Helpers.HasIntersect(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[0]))
-                {
-                    Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[1], m_visibility_triangle[0]);
-                    Node dummy = new Node(inter_point, Node.NodeType.leg, pip.timestamp, 0);
-                    new_edges.AddRange(m_wall_edges[i].Split(dummy));
-                    m_wall_edges.RemoveAt(i);
-                    i--;
-                    if (left_distance > (inter_point - guard_position).magnitude)
-                    {
-                        closest_left = dummy;
-                        left_distance = (inter_point - guard_position).magnitude;
-                    }
-                }
-            }
-            m_wall_edges.AddRange(new_edges);
-            new_edges.Clear();
-            Node.Connect(closest_left, m_visibility_triangle[0]);
+            List<Edge> to_remove = new List<Edge>();
+            Vector2 inter_point;
+            Node dummy;
+            float distance;
+            Node closest_node;
 
-            float right_distance = Helpers.Distance(m_visibility_triangle[2], m_visibility_triangle[0]);
-            Node closest_right = m_visibility_triangle[2];
-            for (int i = 0; i < m_wall_edges.Count; i++)
+            for (int i = 1; i < 3; i++)
             {
-                if (Helpers.HasIntersect(m_wall_edges[i], m_visibility_triangle[2], m_visibility_triangle[0]))
+                distance = Helpers.Distance(m_triangle[i], m_triangle[0]);
+                closest_node = m_triangle[i];
+                foreach (Edge edge in m_wall_edges.Where(e => Helpers.HasIntersect(e, m_triangle[i], m_triangle[0])))
                 {
-                    Vector2 inter_point = Helpers.InterceptPoint(m_wall_edges[i], m_visibility_triangle[2], m_visibility_triangle[0]);
-                    Node dummy = new Node(inter_point, Node.NodeType.leg, pip.timestamp, 1);
-                    new_edges.AddRange(m_wall_edges[i].Split(dummy));
-                    m_wall_edges.RemoveAt(i);
-                    i--;
-                    if (right_distance > (inter_point - guard_position).magnitude)
+                    inter_point = Helpers.InterceptPoint(edge, m_triangle[i], m_triangle[0]);
+                    dummy = new Node(inter_point, Node.NodeType.leg, pip.timestamp, i - 1);
+                    new_edges.AddRange(edge.Split(dummy));
+                    to_remove.Add(edge);
+                    if (distance > (inter_point - guard_position).magnitude)
                     {
-                        closest_right = dummy;
-                        right_distance = (inter_point - guard_position).magnitude;
+                        closest_node = dummy;
+                        distance = (inter_point - guard_position).magnitude;
                     }
                 }
+                m_wall_edges.RemoveAll((Edge e) => { return to_remove.Contains(e); });
+                m_wall_edges.AddRange(new_edges);
+                to_remove.Clear();
+                new_edges.Clear();
+                Node.Connect(closest_node, m_triangle[0]);
             }
-            m_wall_edges.AddRange(new_edges);
-            new_edges.Clear();
-            Node.Connect(closest_right, m_visibility_triangle[0]);
         }
         //------------------------------3.2.6 end
         //------------------------------3.2.7 start
 
         private void GenerateVisibilityArea()
         {
-            Node previous = m_visibility_triangle[0];
-            Node current = m_visibility_triangle[0].neighbours[0];
+            Node previous = m_triangle[0];
+            Node current = m_triangle[0].neighbours[0];
             Node next;
             float min;
-            visibility_graph.Add(m_visibility_triangle[0]);
+            visibility_graph.Add(m_triangle[0]);
             visibility_graph.Add(current);
-            while (current != m_visibility_triangle[0])
+            while (current != m_triangle[0])
             {
                 next = null;
                 min = float.PositiveInfinity;
