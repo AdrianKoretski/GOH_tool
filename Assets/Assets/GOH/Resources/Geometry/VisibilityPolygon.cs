@@ -30,15 +30,15 @@ namespace GOH
 
         private void GeneratePolygon()
         {
-            List<Node> i_nodes = GenerateInterceptNodes();      // 3.2.3
-            SplitEdges(out List<Node> left_nodes, out List<Node> right_nodes);
+            List<Node> i_nodes = GenerateInterceptNodes();                      // 3.2.3
+            SplitEdges(out List<Node> left_nodes, out List<Node> right_nodes);  // 3.2.6
             ConnectClosestNode(left_nodes, 1);
             ConnectClosestNode(right_nodes, 2);
-            GenerateTriangleBase(i_nodes);                      // 3.2.4
-            CastObjectShadows();                                // 3.2.5
+            GenerateTriangleBase(i_nodes);                                      // 3.2.4
+            CastObjectShadows();                                                // 3.2.5
             try
             {
-                GenerateVisibilityArea();                       // 3.2.7
+                GenerateVisibilityArea();                                       // 3.2.7
             }
             catch
             {
