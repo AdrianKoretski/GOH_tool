@@ -84,7 +84,6 @@ namespace GOH
                 i_nodes.Remove(next);
             }
             m_wall_edges.Add(new Edge(prev, m_triangle[2]));
-            Cleaup();
         }
 
         private Node GetClosestInterceptNode(Vector2 position, List<Node> intercept_nodes)
@@ -97,16 +96,6 @@ namespace GOH
                 distance = Vector2.Distance(node.position, position);
             }
             return closest_node;
-        }
-
-        private void Cleaup()
-        {
-            foreach (Node pinned_node in m_pinned_nodes.Where(n => !Helpers.IsContained(m_triangle, n)))
-            {
-                m_wall_edges.RemoveAll((Edge e) => { return e.Connects(pinned_node); });
-                Node.DisconnectAll(pinned_node);
-            }
-            m_pinned_nodes.RemoveAll((Node n) => { return !Helpers.IsContained(m_triangle, n); });
         }
 
         //------------------------------3.2.4 end
@@ -182,24 +171,36 @@ namespace GOH
                     Node dummy_2 = new Node(Helpers.InterceptPoint(edge, m_triangle[2], m_triangle[0]), Node.NodeType.leg, pip.timestamp, 1);
                     left_nodes.Add(dummy_1);
                     right_nodes.Add(dummy_2);
-                    new_edges.AddRange(edge.Split(dummy_1, dummy_2));
+                    Edge[] edges = edge.Split(dummy_1, dummy_2);
+                    Node.Disconnect(dummy_1, edge.node_0);
+                    Node.Disconnect(dummy_1, edge.node_1);
+                    Node.Disconnect(dummy_2, edge.node_0);
+                    Node.Disconnect(dummy_2, edge.node_1);
+                    new_edges.Add(edges[1]);
                 }
-                else if (left)
+                else
                 {
-                    Node dummy = new Node(Helpers.InterceptPoint(edge, m_triangle[1], m_triangle[0]), Node.NodeType.leg, pip.timestamp, 0);
-                    left_nodes.Add(dummy);
-                    new_edges.AddRange(edge.Split(dummy));
-                }
-                else 
-                {
-                    Node dummy = new Node(Helpers.InterceptPoint(edge, m_triangle[2], m_triangle[0]), Node.NodeType.leg, pip.timestamp, 1);
-                    right_nodes.Add(dummy);
+                    Node dummy = new Node(Helpers.InterceptPoint(edge, m_triangle[left ? 1 : 2], m_triangle[0]), Node.NodeType.leg, pip.timestamp, left ? 0 : 1);
+                    if (left) left_nodes.Add(dummy);
+                    else right_nodes.Add(dummy);
+                    Edge[] edges = edge.Split(dummy);
+                    if (!Helpers.IsContained(m_triangle, edge.node_0))
+                    {
+                        Node.Disconnect(dummy, edge.node_0);
+                        new_edges.Add(edges[1]);
+                    }
+                    else
+                    {
+                        Node.Disconnect(dummy, edge.node_1);
+                        new_edges.Add(edges[0]);
+                    }
                     new_edges.AddRange(edge.Split(dummy));
                 }
                 to_remove.Add(edge);
             }
             m_wall_edges.RemoveAll((Edge e) => { return to_remove.Contains(e); });
             m_wall_edges.AddRange(new_edges);
+            m_pinned_nodes.RemoveAll((Node n) => { return !Helpers.IsContained(m_triangle, n); });
         }
 
         private void ConnectClosestNode(List<Node> nodex, int index)
