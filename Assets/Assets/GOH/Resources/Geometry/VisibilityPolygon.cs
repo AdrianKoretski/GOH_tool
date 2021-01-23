@@ -107,7 +107,7 @@ namespace GOH
             float distance;
             Edge closest_edge;
             Vector2 closest_point;
-            foreach (Node pinned_node in m_pinned_nodes.Where(node => Helpers.IsContained(m_triangle, node)))
+            foreach (Node pinned_node in m_pinned_nodes)
             {
                 distance = float.PositiveInfinity;
                 closest_edge = null;
@@ -243,6 +243,8 @@ namespace GOH
         }
         //------------------------------3.2.7 end
 
+
+        // TODO: This should not be in this class. 
         public void GetVisibilityArea(out Vector3[] vertices, out int[] indices)
         {
             List<Vector3> triangle_corners = new List<Vector3>();
