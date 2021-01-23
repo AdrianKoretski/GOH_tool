@@ -31,7 +31,9 @@ namespace GOH
         private void GeneratePolygon()
         {
             List<Node> i_nodes = GenerateInterceptNodes();      // 3.2.3
-            CastCornerShadowNodes();                            // 3.2.6
+            SplitEdges(out List<Node> left_nodes, out List<Node> right_nodes);
+            ConnectClosestNode(left_nodes, 1);
+            ConnectClosestNode(right_nodes, 2);
             GenerateTriangleBase(i_nodes);                      // 3.2.4
             CastObjectShadows();                                // 3.2.5
             try
@@ -157,39 +159,61 @@ namespace GOH
 
         //------------------------------3.2.5 end
         //------------------------------3.2.6 start
-        private void CastCornerShadowNodes()
+
+        private void SplitEdges(out List<Node> left_nodes, out List<Node> right_nodes)
         {
-            Vector2 guard_position = m_triangle[0].position;
+            bool left = false;
+            bool right = false;
             List<Edge> new_edges = new List<Edge>();
             List<Edge> to_remove = new List<Edge>();
-            Vector2 inter_point;
-            Node dummy;
-            float distance;
-            Node closest_node;
-
-            for (int i = 1; i < 3; i++)
-            {
-                distance = Helpers.Distance(m_triangle[i], m_triangle[0]);
-                closest_node = m_triangle[i];
-                foreach (Edge edge in m_wall_edges.Where(e => Helpers.HasIntersect(e, m_triangle[i], m_triangle[0])))
+            left_nodes = new List<Node>();
+            right_nodes = new List<Node>();
+            foreach (Edge edge in m_wall_edges.Where(
+                e =>
                 {
-                    inter_point = Helpers.InterceptPoint(edge, m_triangle[i], m_triangle[0]);
-                    dummy = new Node(inter_point, Node.NodeType.leg, pip.timestamp, i - 1);
-                    new_edges.AddRange(edge.Split(dummy));
-                    to_remove.Add(edge);
-                    if (distance > (inter_point - guard_position).magnitude)
-                    {
-                        closest_node = dummy;
-                        distance = (inter_point - guard_position).magnitude;
-                    }
+                    left = Helpers.HasIntersect(e, m_triangle[1], m_triangle[0]);
+                    right = Helpers.HasIntersect(e, m_triangle[2], m_triangle[0]);
+                    return left || right;
+                }))
+            {
+                if (left && right)
+                {
+                    Node dummy_1 = new Node(Helpers.InterceptPoint(edge, m_triangle[1], m_triangle[0]), Node.NodeType.leg, pip.timestamp, 0);
+                    Node dummy_2 = new Node(Helpers.InterceptPoint(edge, m_triangle[2], m_triangle[0]), Node.NodeType.leg, pip.timestamp, 1);
+                    left_nodes.Add(dummy_1);
+                    right_nodes.Add(dummy_2);
+                    new_edges.AddRange(edge.Split(dummy_1, dummy_2));
                 }
-                m_wall_edges.RemoveAll((Edge e) => { return to_remove.Contains(e); });
-                m_wall_edges.AddRange(new_edges);
-                to_remove.Clear();
-                new_edges.Clear();
-                Node.Connect(closest_node, m_triangle[0]);
+                else if (left)
+                {
+                    Node dummy = new Node(Helpers.InterceptPoint(edge, m_triangle[1], m_triangle[0]), Node.NodeType.leg, pip.timestamp, 0);
+                    left_nodes.Add(dummy);
+                    new_edges.AddRange(edge.Split(dummy));
+                }
+                else 
+                {
+                    Node dummy = new Node(Helpers.InterceptPoint(edge, m_triangle[2], m_triangle[0]), Node.NodeType.leg, pip.timestamp, 1);
+                    right_nodes.Add(dummy);
+                    new_edges.AddRange(edge.Split(dummy));
+                }
+                to_remove.Add(edge);
             }
+            m_wall_edges.RemoveAll((Edge e) => { return to_remove.Contains(e); });
+            m_wall_edges.AddRange(new_edges);
         }
+
+        private void ConnectClosestNode(List<Node> nodex, int index)
+        {
+            float distance = Helpers.Distance(m_triangle[index], m_triangle[0]);
+            Node closest_node = m_triangle[index];
+            foreach (Node node in nodex.Where(n => distance > (n.position - m_triangle[0].position).magnitude))
+            {
+                closest_node = node;
+                distance = (node.position - m_triangle[0].position).magnitude;
+            }
+            Node.Connect(closest_node, m_triangle[0]);
+        }
+
         //------------------------------3.2.6 end
         //------------------------------3.2.7 start
 
