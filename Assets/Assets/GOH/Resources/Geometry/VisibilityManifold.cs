@@ -75,10 +75,12 @@ namespace GOH
 
         private void connectSame(float timeStamp)
         {
+            //foreach (Node node in second_last().visibility_graph)
+            //foreach (Node node in second_last().visibility_graph)
             for (int i = 0; i < second_last().Count() - 1; i++)
             {
-                connectNodeTime(i, i, timeStamp);
-                connectNodeTime(i + 1, i, timeStamp);
+                connectNodeTime(second_last().At(i), last().At(i), timeStamp);
+                connectNodeTime(second_last().At(i + 1), last().At(i), timeStamp);
                 addTriangle(
                     second_last().At(i),
                     second_last().At(i + 1),
@@ -97,7 +99,7 @@ namespace GOH
         {
             Node n0 = second_last().First();
             Node n1 = last().Last();
-            connectNodeTime(second_last().Count() - 1, last().Count() - 1, timeStamp);
+            connectNodeTime(second_last().At(second_last().Count() - 1), last().At(last().Count() - 1), timeStamp);
             Node.Connect(n0, n1);
             addTriangle
                 (
@@ -154,7 +156,7 @@ namespace GOH
                 }
                 int index_of_0 = layer_0.IndexOf(closest.bottom);
                 int index_of_1 = layer_1.IndexOf(closest.top);
-                connectNodeTime(index_of_0, index_of_1, layer_1.Timestamp());
+                connectNodeTime(second_last().At(index_of_0), last().At(index_of_1), layer_1.Timestamp());
                 closest_0.Remove(closest);
                 closest_1.Remove(closest);
             }
@@ -180,7 +182,7 @@ namespace GOH
             for (int i = 0; i < layer_0.Count(); i++)
                 for (int j = 0; j < layer_1.Count(); j++)
                     if (Node.Compare(layer_1.At(j), layer_0.At(i)))
-                        connectNodeTime(i, j, layer_0.Timestamp());
+                        connectNodeTime(second_last().At(i), last().At(j), layer_0.Timestamp());
         }
 
         private Node getClosest(Node node_1, VisibilityPolygon layer_0, VisibilityPolygon layer_1)
@@ -254,9 +256,9 @@ namespace GOH
                         break;
                     }
                     if (src_index != source.Count() - 1)
-                        connectNodeTime(src_index + 1, dst_index, dest.Timestamp());
+                        connectNodeTime(second_last().At(src_index + 1), last().At(dst_index), dest.Timestamp());
                     else if (dst_index != dest.Count() - 1)
-                        connectNodeTime(src_index, dst_index + 1, dest.Timestamp());
+                        connectNodeTime(second_last().At(src_index), last().At(dst_index + 1), dest.Timestamp());
                 }
             }
         }
@@ -305,12 +307,10 @@ namespace GOH
             saveTriangleObj(vx0, vx1, vx2);
         }
 
-        private void connectNodeTime(int node_index_0, int node_index_1, float timeStamp)
+        private void connectNodeTime(Node n0, Node n1, float timeStamp)
         {
-            Node n0 = second_last().At(node_index_0);
-            Node n1 = last().At(node_index_1);
             Node.Connect(n0, n1);
-            GameObject go = Visualiser.CreateLine(null, getManifoldPosition(layer_count() - 2, node_index_0), getManifoldPosition(layer_count() - 1, node_index_1), Color.black, Color.black, "Line " + " ");
+            GameObject go = Visualiser.CreateLine(null, getManifoldPosition(layer_count() - 2, second_last().visibility_graph.IndexOf(n0)), getManifoldPosition(layer_count() - 1, last().visibility_graph.IndexOf(n1)), Color.black, Color.black, "Line " + " ");
             SimplifiedGraphVisualiser.instance.AddGeom(go, timeStamp);
         }
 

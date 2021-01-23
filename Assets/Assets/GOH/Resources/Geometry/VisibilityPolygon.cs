@@ -271,7 +271,7 @@ namespace GOH
 
         public static bool Compare(VisibilityPolygon vp_0, VisibilityPolygon vp_1)
         {
-            if (vp_0.visibility_graph.Count != vp_1.visibility_graph.Count)
+            if (vp_0 == null || vp_1 == null || vp_0.visibility_graph.Count != vp_1.visibility_graph.Count)
                 return false;
             for (int i = 0; i < vp_0.visibility_graph.Count; i++)
                 if (!Node.Compare(vp_0.visibility_graph[i], vp_1.visibility_graph[i]))
