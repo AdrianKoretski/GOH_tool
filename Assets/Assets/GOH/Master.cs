@@ -49,9 +49,9 @@ namespace GOH
                 InsertIntermediatePolygons(polys);
             }
             vis_polys.Add(vis);
-            PolygonVisualiser.instance.CreatePolygon(vis.Timestamp());
+            PolygonVisualiser.instance.CreatePolygon(vis.timestamp);
             vis.GetVisibilityArea(out Vector3[] v, out int[] tni);
-            PolygonVisualiser.instance.AddMesh(v, tni, vis.Timestamp());
+            PolygonVisualiser.instance.AddMesh(v, tni, vis.timestamp);
 
             visibility_manifold.addArea(vis);
             if (m_path_index == m_path.Count - 1)
@@ -62,9 +62,9 @@ namespace GOH
         {
             for (int i = 0; i < polys.Count; i++)
             {
-                PolygonVisualiser.instance.CreatePolygon(polys[i].Timestamp());
+                PolygonVisualiser.instance.CreatePolygon(polys[i].timestamp);
                 polys[i].GetVisibilityArea(out Vector3[] v, out int[] tni);
-                PolygonVisualiser.instance.AddMesh(v, tni, polys[i].Timestamp());
+                PolygonVisualiser.instance.AddMesh(v, tni, polys[i].timestamp);
                 m_path.Insert(m_path_index, polys[i].pip);
                 vis_polys.Add(polys[i]);
                 visibility_manifold.addArea(polys[i]);

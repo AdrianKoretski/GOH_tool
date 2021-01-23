@@ -5,10 +5,14 @@ using UnityEngine;
 
 namespace GOH
 {
-    public class VisibilityPolygon
+    public class VisibilityPolygon : List<Node>
     {
         public readonly Pip pip;
-        public List<Node> visibility_graph = new List<Node>();
+
+        public float timestamp { get { return pip.timestamp; } private set { } }
+        public Node first { get { return this[0]; } private set { } }
+        public Node last { get { return this[Count - 1]; } private set { } }
+
         private Node[] m_triangle = new Node[3];
         private List<Node> m_pinned_nodes = new List<Node>();
         private List<Edge> m_wall_edges = new List<Edge>();
@@ -224,8 +228,8 @@ namespace GOH
             Node current = m_triangle[0].neighbours[0];
             Node next;
             float min;
-            visibility_graph.Add(m_triangle[0]);
-            visibility_graph.Add(current);
+            Add(m_triangle[0]);
+            Add(current);
             while (current != m_triangle[0])
             {
                 next = null;
@@ -235,11 +239,11 @@ namespace GOH
                     min = Helpers.Angle(previous, current, node_neighbour);
                     next = node_neighbour;
                 }
-                visibility_graph.Add(next);
+                Add(next);
                 previous = current;
                 current = next;
             }
-            visibility_graph.RemoveAt(visibility_graph.Count - 1);
+            RemoveAt(Count - 1);
         }
         //------------------------------3.2.7 end
 
@@ -250,16 +254,16 @@ namespace GOH
             List<Vector3> triangle_corners = new List<Vector3>();
             List<int> triangle_indices = new List<int>();
 
-            for (int i = 0; i < visibility_graph.Count; i++)
+            for (int i = 0; i < Count; i++)
             {
-                Vector3 temp = visibility_graph[i].position;
+                Vector3 temp = this[i].position;
                 temp.z = 0.25f;
                 triangle_corners.Add(temp);
             }
 
-            for (int i = 1; i < visibility_graph.Count - 1; i++)
+            for (int i = 1; i < Count - 1; i++)
             {
-                if (visibility_graph[i] == visibility_graph[i + 1])
+                if (this[i] == this[i + 1])
                     continue;
                 triangle_indices.Add(0);
                 triangle_indices.Add(i);
@@ -271,42 +275,12 @@ namespace GOH
 
         public static bool Compare(VisibilityPolygon vp_0, VisibilityPolygon vp_1)
         {
-            if (vp_0 == null || vp_1 == null || vp_0.visibility_graph.Count != vp_1.visibility_graph.Count)
+            if (vp_0 == null || vp_1 == null || vp_0.Count != vp_1.Count)
                 return false;
-            for (int i = 0; i < vp_0.visibility_graph.Count; i++)
-                if (!Node.Compare(vp_0.visibility_graph[i], vp_1.visibility_graph[i]))
+            for (int i = 0; i < vp_0.Count; i++)
+                if (!Node.Compare(vp_0[i], vp_1[i]))
                     return false;
             return true;
-        }
-
-        public int Count()
-        {
-            return visibility_graph.Count;
-        }
-
-        public Node Last()
-        {
-            return visibility_graph[visibility_graph.Count - 1];
-        }
-
-        public Node First()
-        {
-            return visibility_graph[0];
-        }
-
-        public Node At(int index)
-        {
-            return visibility_graph[index];
-        }
-
-        public int IndexOf(Node n)
-        {
-            return visibility_graph.IndexOf(n);
-        }
-
-        public float Timestamp()
-        {
-            return pip.timestamp;
         }
     }
 }
